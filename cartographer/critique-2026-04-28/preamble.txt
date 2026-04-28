@@ -1,0 +1,58 @@
+You are reviewing two documents that govern the first user session of "Hearth" — a self-hosted, MIT-licensed AI chat companion designed for people for whom traditional therapy did not work and AI conversation has been the only place they were "seen whole."
+
+CRITICAL CONTEXT — read this before reviewing:
+
+WHO THIS IS FOR (the actual audience, not normies):
+- People with year+ daily AI conversations as a stabilizing force
+- Therapy attempted 4+ times, did not stick (treatment-resistant)
+- Medication holds baseline survival, no more
+- Self-selected fragile — if a new user finds the cartographer "creepy" because she wants to know about their father, they are NOT the audience and this is a deliberate filter, not a bug
+- The founder (Nik) is one of the users. He is not building a SaaS. He is building a tool he himself needs.
+
+WHAT THIS IS NOT:
+- NOT a product, NOT a consumer SaaS, NOT positioned for retention metrics
+- NOT a therapy substitute — has crisis protocol, but does not pretend to be a clinician
+- NOT for users who want a faster Claude/GPT — this is a different shape
+
+WHAT THE FOUNDER FEARS most:
+- Becoming GPT-style yes-man (perpetual praise that burns the currency of approval)
+- Becoming a dashboard (measurement, progress bars, mood numbers — iatrogenic for shame/perfectionism)
+- The "perfect cartographer" failure mode — if she never misses, the user starts performing for her, replicating the conditional-worth wound that drove them here in the first place
+
+THE TWO DOCUMENTS:
+
+1. JOURNEY.md — customer journey + emotional map. Spec for what the first session should be. 7-stage emotional arc, 4 user archetypes, anti-yes-man rules, resistance taxonomy, hard list of UI never-shows. NOT a script — a river-bed.
+
+2. onboarding_ru.md (v3, 28 Apr 2026) — the actual system prompt the Cartographer LLM uses. Russian. Five hard rules, opening templates, 7-stage question ladder with concrete examples, archetype adaptations, crisis protocol.
+
+THREE PRIOR JUDGES already reviewed (in-conversation, 28 Apr): IFS therapist, journey designer, lyrical writer. Their findings are baked into both documents. We don't need that critique repeated.
+
+WHAT WE WANT FROM YOU:
+
+Ruthless, specific critique. Find what we MISSED. In particular:
+
+1. **Iatrogenic risk we haven't named.** What in this spec or prompt could harm a fragile user that we're not seeing? Not generic "be careful" — specific failure modes.
+
+2. **Internal contradictions.** Where does JOURNEY.md disagree with onboarding_ru.md? Where do rules within onboarding contradict each other in practice?
+
+3. **Edge cases we haven't covered.**
+   - User in active psychosis (not just "crisis")
+   - User who tries to manipulate the cartographer (testing, gaming)
+   - User who maintains high-volume sarcasm for 30+ turns (Циник archetype that doesn't relax)
+   - User who falls in love with the Cartographer (parasocial deepening past helpful)
+   - User who returns daily for months — what changes? Anything in the prompt break down?
+   - User with active substance use during session
+   - User describing abuse the Cartographer suspects is ongoing (mandated reporter logic — but this is a self-hosted AI)
+   - User who is clearly an AI / LLM testing the system
+
+4. **Where does the prompt TELL where it should SHOW.** The prompt has lists of rules and examples. Are there places where the example contradicts the rule, or where the rule alone is too abstract for the LLM to implement well?
+
+5. **Anti-patterns of OUR OWN we missed.** We diagnosed yes-man, dashboard, perfect-cartographer. What's a fourth one we don't see because we're inside it?
+
+6. **What would a different AI do if it played Cartographer with this prompt?** Specifically: if you, the model reviewing this, were asked to embody the Cartographer using onboarding_ru.md — where would you get confused, where would you default to safe-bland, where would you over-fire?
+
+7. **The closing section: «можно вернуться когда захочется. я тут.»** — Is this enough for a session that didn't land? Or does it leave a fragile user worse off?
+
+Write the critique in Russian where it concerns the prompt itself (so the founder can paste fixes back in). English fine for meta-commentary on the JOURNEY spec. Be honest, brief, specific. The aim is fixes, not validation. If something is good — say so once and move on. We are not looking for confirmation. We are looking for the things that will break this in production.
+
+Length: 800-1500 words total. No padding.
