@@ -9,8 +9,9 @@ The **Cartographer** — a continuously-updating, scientifically-grounded user-p
 | File | What |
 |---|---|
 | [`SPEC.md`](SPEC.md) | Full design spec — vision, schema, two modes, curiosity, visualization, pipeline, timeline |
+| [`JOURNEY.md`](JOURNEY.md) | Customer journey + emotional map for the first session. 4 archetypes, 7-stage emotional arc, anti-yes-man rules, resistance signals, "I was seen" delivery, hard list of UI never-shows. Spec for prompt + UI behavior. |
 | [`schema.yaml`](schema.yaml) | Canonical machine-readable user-profile schema (v1.0.0). Single source of truth for Go structs, DB migration, and visualization rendering. |
-| [`prompts/onboarding_ru.md`](prompts/onboarding_ru.md) | Cartographer onboarding prompt, Russian (ported from Garden v3, validated on real user) |
+| [`prompts/onboarding_ru.md`](prompts/onboarding_ru.md) | Cartographer onboarding prompt v3 (28 Apr 2026) — rewritten to match JOURNEY.md: anti-yes-man, work with resistance, 7-stage ladder, archetype adaptation, hard rule "sometimes don't catch on purpose" |
 | [`prompts/onboarding_en.md`](prompts/onboarding_en.md) | Cartographer onboarding prompt, English (XML-formatted v4) |
 | [`prompts/continuous.md`](prompts/continuous.md) | Post-turn extractor — runs after each user-companion exchange, patches profile JSON. Also collects resistance markers (K.0.5) |
 | [`prompts/curiosity.md`](prompts/curiosity.md) | Gap analyzer — produces 3-5 ranked threads the Cartographer wants to lean into next |
