@@ -3,35 +3,25 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#0f0f10" />
+    <meta name="theme-color" content="#1a0f0c" />
     <title>hearth</title>
     <link rel="stylesheet" href="/style.css" />
   </head>
   <body>
-    <header class="app-header">
-      <div class="app-brand">
-        <heart-pulse></heart-pulse>
-        <h1 class="app-title">hearth</h1>
-        <span class="app-tag" data-mode-tag>картограф</span>
-      </div>
-      <div class="app-status" aria-live="polite">
-        <span class="status-dot" data-status="ok" title="Pulse engine"></span>
-        <span class="status-dot" data-status="ok" title="LLM"></span>
-      </div>
+    <header class="hearth-corner" aria-hidden="true">
+      <heart-pulse></heart-pulse>
     </header>
 
-    <main class="app-main">
-      <section class="chat-pane" aria-label="Chat">
-        <chat-thread></chat-thread>
-        <composer-bar></composer-bar>
-      </section>
-
-      <aside class="side-pane" aria-label="Map, state, and router log">
-        <profile-snapshot></profile-snapshot>
-        <state-panel></state-panel>
-        <router-log></router-log>
-      </aside>
+    <main class="hearth-main">
+      <chat-thread></chat-thread>
+      <composer-bar></composer-bar>
     </main>
+
+    <aside class="debug-pane" aria-label="Debug — only when ?debug=1">
+      <profile-snapshot></profile-snapshot>
+      <state-panel></state-panel>
+      <router-log></router-log>
+    </aside>
 
     <script type="module" src="/dist/app.js"></script>
   </body>

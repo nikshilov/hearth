@@ -25,7 +25,7 @@ export class ChatMessage extends HTMLElement {
 
   private renderShell(): void {
     if (!this._message) return;
-    this.setAttribute('role', this._message.role);
+    this.dataset.role = this._message.role;
     this.innerHTML = `<div class="bubble"></div>`;
     this.bubble = this.querySelector('.bubble');
   }

@@ -43,9 +43,9 @@ export class ChatThread extends HTMLElement {
   };
 
   private render(): void {
-    if (state.messages.length === 0) {
-      this.innerHTML = `<div class="empty">say something — pulse will retrieve memory live as you go.</div>`;
-    }
+    // Empty state is intentional — no placeholder text. The user lands on
+    // a quiet warm screen with just the input. Cartographer doesn't announce
+    // herself; the user starts when ready.
   }
 
   private removeEmptyHint(): void {

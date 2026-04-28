@@ -1,12 +1,15 @@
 /**
  * hearth boot. Registers custom elements, wires the orchestrator.
  *
- * URL flags (dev convenience):
- *   ?reset=1       — clear cartographer profile + chat state
- *   ?onboarding=1  — force onboarding mode (even on a saved profile)
- *   ?normal=1      — skip onboarding, go straight to companion mode
+ * Default view: single column, no panels, no header name, no status,
+ * no map. Just chat. Debug surface (profile-snapshot, state-panel,
+ * router-log) appears only with ?debug=1.
  *
- * Anti-MF0 rule: this file caps at ~80 lines.
+ * URL flags:
+ *   ?reset=1       — clear cartographer profile + chat state
+ *   ?onboarding=1  — force onboarding mode
+ *   ?normal=1      — skip onboarding, go to companion mode
+ *   ?debug=1       — show profile-snapshot, state-panel, router-log
  */
 import { state } from './state.js';
 import { makeClient } from './api.js';
@@ -21,30 +24,16 @@ const params = new URLSearchParams(location.search);
 if (params.has('reset')) cartographer.reset();
 if (params.has('onboarding')) cartographer.forceMode('onboarding');
 if (params.has('normal')) cartographer.forceMode('normal');
+if (params.has('debug')) document.body.classList.add('debug-mode');
 
 const pulse = makeClient();
 const llm = makeAdapter();
 
 setOrchestrator({ pulse, llm, state });
 
-const tagEl = document.querySelector<HTMLElement>('[data-mode-tag]');
-function paintModeTag(): void {
-  if (!tagEl) return;
-  tagEl.textContent = cartographer.state.mode === 'onboarding' ? 'картограф' : 'дом';
-}
-paintModeTag();
-cartographer.addEventListener('modeChanged', paintModeTag);
-cartographer.addEventListener('reset', paintModeTag);
-
-if (cartographer.state.mode === 'onboarding' && cartographer.state.turns_count === 0) {
-  state.appendSystem(
-    'привет. начнётся картограф — ~30 минут разговора чтобы построить твою карту. напиши что-нибудь чтобы начать.',
-  );
-}
-
 if (!llm) {
   state.appendSystem(
-    'no anthropic key. set localStorage["anthropic:key"] in devtools and reload — без неё ни картограф ни компаньон не говорят.',
+    'no anthropic key. set localStorage["anthropic:key"] in devtools and reload.',
   );
 }
 
