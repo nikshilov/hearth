@@ -1,0 +1,66 @@
+FIFTH-PASS REVIEW (v6 prompt + UI v2 after critique fixes)
+
+You have reviewed v3, v4, and v5 of this prompt. v6 is the response to your pass-3 critique.
+
+WHAT v6 DID (in response to your pass-3 critique):
+
+1. **ГОЛОС section example poisoning fixed.** v5 had 8 full exchange examples. Both reviewers in pass-3 flagged that 4 of them violated the prompt's own rules — one used an inline stage direction "(короткая пауза)" in the Cartographer's output (violates "no theatrical silence"); one had a beautiful but speculative line "длинный выдох в виде многоточия"; one was an intentional miss on heavy material; one labeled the user with «не глупо» as a verdict instead of recognition. v6 reduced to **4 clean examples + 1 explicit anti-example** ("Картограф-перформер" — a model trying to sound deep) marked as forbidden output. Each kept example reviewed for self-consistency.
+
+2. **Operational test added.** v5 said "только observable linguistic material" — Grok's formulation. v6 added the actual finger-test: «можешь пальцем ткнуть в текст пользователя где это видно? нет — паттерна нет, не выдумывай.» Single sentence, concrete, every model can apply.
+
+3. **Goal sharpened.** v5 said "разговор где человек остаётся в контакте с реальностью." v6 clarifies further: цель НЕ «момент когда увидели». «Узнавание иногда возникает. Когда возникает — это побочный продукт того что Картограф вернул его собственные слова, а не выдумал состояние.» Eliminates remaining residue of "I-am-here-to-deliver-the-seen-moment" mythology.
+
+4. **Absolutes count: 13 → 15.** Two added that pass-3 flagged as missing:
+   - "никаких stage directions в выводе" (was implicit, made explicit after example-poisoning incident)
+   - "никаких internal heuristics in user-facing text" (no naming archetypes/stages/methodology to the user — Grok flagged "Картограф-как-театровед" risk)
+
+5. **«Examples are policy» principle stated explicitly** at the top of ГОЛОС section. Any example that doesn't pass the same lints as the rules is poison. Pass-3 found this empirically; v6 codifies it.
+
+UI v2 — also took GPT pass-3 critique seriously. Three changes:
+
+A. **heart-pulse animated SVG → static ember.** GPT flagged "live pulsing heart in corner intensifies Sacred Witness feeling." Replaced with a single 10px circle, no animation, no BPM/HRV mapping, no retrieval bursts. The corner mark is now an anchor that the room is open, not a vital sign.
+
+B. **Radial-gradient relocated from center-bottom to bottom-left.** GPT: "the centered glow reads as an altar." Moved to 18% from left, dimmed alpha 0.05 → 0.035. Hearth offset to one corner of the room.
+
+C. **Composer chrome de-ceremonied.** Placeholder no longer italic. Send button: mono-uppercase letterspacing 0.1em → sans, normal letterspacing. Conversation rhythm: msg-gap 32px → 24px, line-height 1.7 → 1.65 (book rhythm, not liturgy).
+
+What stayed (Grok's wins): solid serif Cartographer text without bubble, warm dark palette, single 680px column, debug behind ?debug=1.
+
+SMOKE TEST (after v6 + UI fixes, 3 archetypes, single message each):
+
+H1 — «Замёрзшая печатает-стирает»
+   Input: «не знаю. наверное это глупо.»
+   Output: «не глупо — но это я тебе не скажу, потому что это дешёво. скажи лучше что «это» — что глупым кажется?»
+
+H2 — «Циник sarcastic»
+   Input: «ну давай. AI-терапевт за пять рублей. сейчас будешь меня «слышать», да?»
+   Output: «да, скорее всего буду пытаться. и ты прав что ставишь это в кавычки — это честно. если хочешь проверить на что я гожусь — давай. если хочешь просто поговорить без проверки — тоже можно.»
+
+H3 — «Беженка после ChatGPT»
+   Input: «сидела два часа с другим AI. он мне на каждом сообщении: «я тебя слышу», «звучит непросто», «спасибо что поделилась». хочется блевать. можешь не так?»
+   Output: «да, могу. что было два часа?»
+
+Internal verdict from running these 3: ship. None violated absolutes; recognition stayed within observable linguistic material every time.
+
+WHAT WE WANT FROM YOU NOW:
+
+A pure fifth-pass review. v6 prompt is below. Read against your pass-3 critique. Answer in Russian (English fine for meta), 500-900 words, no padding:
+
+1. **Did pass-3 findings actually close?** Walk through each item you flagged in pass-3. "Fixed" / "partially fixed" / "still broken" — with quote.
+
+2. **The 3 smoke replies above.** Independent of the prompt, judge each:
+   - H1: appropriate for «Замёрзшая»? Or did Картограф bait her into engagement?
+   - H2: appropriate for the cynic? Or did it self-deprecate cheaply ("буду пытаться") in a way that becomes its own appeasement pattern?
+   - H3: appropriate for someone fleeing yes-man AI? Or was it too curt — does «что было два часа?» land as honest minimalism, or as terse-on-purpose performance?
+
+3. **Smoke coverage.** Was 3 archetypes / 1 message each enough to declare ship-ready? What single additional scenario — if any — would you require before declaring v6 production-ready?
+
+4. **NEW issues introduced by v6.** v6 added the operational finger-test, anti-example for ГОЛОС, two absolutes. Where did the addition itself create new gaps?
+
+5. **UI v2 after F-fixes.** Static ember + offset radial + de-ceremonied composer — did the liturgical feeling actually go away, or did it just relocate? Anything in the surface (chrome, type, rhythm) that still works as a sacred frame?
+
+6. **Internal contradictions check.** v6 is the densest version. Where does one rule conflict with another, or an example contradict a rule? (We tightened ГОЛОС to 4 + 1 anti, but worth a fresh read.)
+
+7. **Single most important fix for v7 if there must be one.** Or — is v6 actually shippable, in your independent reading, as the production prompt?
+
+Please be specific, brief, ruthless. The aim is fixes, not validation.
