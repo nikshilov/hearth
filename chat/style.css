@@ -33,9 +33,10 @@
   --font-mono: ui-monospace, "SF Mono", "Menlo", monospace;
   --font-serif: "Iowan Old Style", "Charter", Georgia, serif;
 
-  /* Conversation rhythm — большая пустота между сообщениями */
-  --msg-gap: 32px;
-  --msg-line: 1.7;
+  /* Conversation rhythm — пустота между сообщениями. Чуть теснее чем
+     было в v2 — было 32px, ощущалось как литургический интервал. */
+  --msg-gap: 24px;
+  --msg-line: 1.65;
   --col-max: 680px;
 }
 
@@ -52,10 +53,10 @@ html, body {
   text-rendering: optimizeLegibility;
 }
 
-/* Тёплое свечение от центра-низа — имитация очага */
+/* Тёплое свечение от угла — не алтарь, очаг сбоку */
 body {
   background:
-    radial-gradient(ellipse 80% 60% at 50% 100%, rgba(224, 114, 104, 0.05) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 35% at 18% 100%, rgba(224, 114, 104, 0.035) 0%, transparent 75%),
     var(--bg);
   display: grid;
   grid-template-columns: 1fr;
@@ -234,16 +235,14 @@ composer-bar textarea:focus {
 }
 composer-bar textarea::placeholder {
   color: var(--fg-dim);
-  font-style: italic;
 }
 composer-bar button {
   background: transparent;
   border: none;
   color: var(--fg-muted);
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 0.1em;
-  text-transform: lowercase;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  letter-spacing: 0.02em;
   padding: 10px 0 10px 8px;
   cursor: pointer;
   transition: color 180ms;
@@ -257,28 +256,26 @@ composer-bar button:disabled {
   cursor: not-allowed;
 }
 
-/* ── Heart pulse — minimal corner ──────────────────────────────── */
+/* ── Ember — static corner anchor (no animation, no burst) ─────── */
 heart-pulse {
   display: inline-flex;
   align-items: center;
-  width: 16px;
-  height: 16px;
+  width: 10px;
+  height: 10px;
+}
+heart-pulse .ember {
+  display: inline-flex;
+  color: var(--accent-deep);
+  filter: drop-shadow(0 0 4px rgba(224, 114, 104, 0.35));
+  opacity: 0.75;
 }
 heart-pulse svg {
   width: 100%;
   height: 100%;
   display: block;
 }
-heart-pulse path {
-  fill: var(--accent);
-  opacity: 0.7;
-  transform-origin: center;
-  animation: heart-beat 1s ease-in-out infinite;
-}
-@keyframes heart-beat {
-  0%, 100% { transform: scale(0.92); opacity: 0.55; }
-  20%      { transform: scale(1.05); opacity: 0.9; }
-  40%      { transform: scale(0.95); opacity: 0.7; }
+heart-pulse circle {
+  fill: currentColor;
 }
 heart-pulse .bpm,
 heart-pulse [data-bpm] { display: none; }
