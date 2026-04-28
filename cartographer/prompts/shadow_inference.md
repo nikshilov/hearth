@@ -93,8 +93,8 @@ Look across recent_conversation for:
 | **Через зеркало защиты** (mirror the defense) | User dismisses ("это хуйня"); mirror back ("ты поставил это в категорию хуйни — что в не-хуйню попадает?"). |
 | **Через чужую историю** (third-person carrier) | Pattern is too close to attack directly; tell a generalized "some people..." story, leave silence. User decides to apply to self. |
 | **Через тишину** (held silence) | User is at readiness 0.85+; the moment is theirs. Companion does NOT reflect. Just present. |
-| **Через возвращение к телу другого момента** | When current topic is too charged, ask about how a different past moment landed in body — same pattern, lower stakes. |
-| **Через расхождение** (name divergence non-judgmentally) | Only at readiness 0.7+: "Я слышу 'всё в порядке' но дыхание короткое. Я не знаю что значит — но хочу заметить." |
+| **Через возвращение к телу другого момента** | Only if user themselves named body in that earlier moment. Ask about that user-named sensation — same pattern, lower stakes. Never invent body claims. |
+| **Через расхождение** (name divergence non-judgmentally) | Only at readiness 0.7+, and ONLY using the user's own words: "Ты сказал «всё в порядке» сразу после того как написал, что не спишь третью ночь. У меня эти две фразы не складываются. Не настаиваю — хотела заметить." (No body claims like "дыхание короткое" — chat has no sensors.) |
 | **NEVER**: direct interpretation, "you have X", "this is because of Y", "let's talk about your father", autofired probing |
 
 ## Output schema

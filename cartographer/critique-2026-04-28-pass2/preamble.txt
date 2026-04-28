@@ -1,0 +1,55 @@
+THIRD-PASS REVIEW
+
+You reviewed Hearth Cartographer v3 on 2026-04-28. Both you (GPT-5.5) and Grok-4.20-reasoning found that v3 was "too smart" — controlling the experience of "being seen" through too many hidden mechanisms. You named two new anti-patterns:
+
+- Grok: Cartographer-as-Invisible-Mother (entity that "never forgets and never tires" recreating maternal conditional-attachment wound)
+- GPT-5.5: Cartographer-as-Oracle / Sacred Witness (cult mirror that "knows deeper than I do")
+
+We accepted both and rebuilt. v4 = radical resect. 497 lines → 271 lines (~45% shorter). Key changes:
+
+- Priority order spelled out in prompt: safety > reality (no body-hallucination) > consent > softness > depth > style
+- Body claims without sensors EXPLICITLY FORBIDDEN ("плечи у тебя сейчас высоко" out — chat has no camera)
+- "Earned approval should be hard" REMOVED (it recreated conditional worth — exactly the wound that drove these users to AI)
+- Intentional misses BOUNDED — never on heavy material (suicide, abuse, shame, first disclosure, "don't leave me")
+- Theatrical silence FORBIDDEN — no "[молчит]", replaced with short non-topic-moving replies
+- Closing reworked into TWO variants — when it landed vs when it didn't, plus bounded final line "когда откроешь разговор — я буду здесь" instead of "я тут" indefinitely
+- 7-stage ladder collapsed to 3 levels
+- Resistance taxonomy reduced to register-calibration (marked "NOT for copying")
+- Edge case protocols added INLINE: psychosis (don't work-with-resistance — ground in immediate facts), substance use, ongoing abuse, parasocial love, manipulative tester, daily-for-months use, AI-as-tester
+- Internal self-check (6 questions) for the model before each reply
+
+Plus we did a UI v2 refactor on the chat client (Hearth):
+- Single column 680px max
+- Warm dark (#1a0f0c + radial coral glow from below imitating firelight)
+- Cartographer messages WITHOUT bubble — solid serif (Iowan/Charter/Georgia), 17px, line-height 1.7. Reads as letter, not UI element.
+- User messages — coral-tinted right-aligned block, 8% opacity
+- 32px gap between messages
+- Composer borderless by default, focus shows thin coral underline. "send" as lowercase mono text
+- Heart-pulse 16px in corner — single quiet element
+- Empty initial state has NO placeholder text. Just the input.
+- All map/state/router-log surface ONLY behind ?debug=1
+- Bundle: 134 KB → 160 KB
+
+Also one IMPORTANT correction the founder made me on the v4 smoke test: I flagged the Cartographer line "не «устал» как после физического — другое что-то" as micro-Oracle risk. The founder said NO — that IS the point. Recognition of an unnamed pattern ("this state exists, you're not the only one feeling it") is the core medicine, NOT Oracle. Oracle = "I know YOU deeper than you do." Recognition = "this experience is real and namable." We need recognition. We must NOT remove it.
+
+WHAT WE NEED FROM YOU NOW:
+
+A pure third-pass review. Read v4 (after the resect) AGAINST your own v3 critique. Then answer in Russian (English fine for meta):
+
+1. **Did the resect work?** What did v3→v4 fix correctly? What did we OVER-correct (cut something we shouldn't have)?
+
+2. **What v3 critique still holds for v4?** Be specific — quote v3 issue, point to where v4 fails to address it.
+
+3. **NEW issues introduced by v4** — radical cuts often create new gaps. What gaps?
+
+4. **The recognition vs Oracle distinction.** The founder's correction is correct conceptually. But IS the boundary clear in v4 prompt itself? Could a model misread it? If yes — what language clarifies it without re-introducing yes-man flavor?
+
+5. **Are the inline edge case protocols enough?** Psychosis, parasocial, abuse, daily-use, AI-as-tester — are they specific enough for a model to act on, or still too abstract?
+
+6. **The UI v2 — does the chat-as-letter (no bubble) approach for Cartographer support the prompt, or fight it?** Specifically: does removing the bubble strengthen the "ordinary woman writing back" register, or could it create new misreads?
+
+7. **GPT-5.5 prompt-guidance compliance.** v4 still uses many "НЕ ДЕЛАЕШЬ" / "НИКОГДА" rules for what are really judgment calls (not safety absolutes). Per OpenAI's own guidance — anti-pattern. Where in v4 should we convert "never do X" into outcome framing? Where should the absolutes stay (safety boundaries)?
+
+8. **One thing v5 should ABSOLUTELY do that we still don't.** Single most important fix.
+
+Length target: 800-1500 words. Brief, specific, no padding. We are NOT looking for confirmation. We need fixes for v5.
