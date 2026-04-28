@@ -24,6 +24,8 @@ export interface StreamArgs {
   messages: Message[];
   retrieved?: RetrieveResponse;
   retrievedTexts?: Map<number, string>;
+  /** When set, replaces the default system prompt entirely. Used for cartographer onboarding. */
+  overrideSystem?: string;
   onChunk: (text: string) => void;
   onComplete: () => void;
   onError: (err: Error) => void;
@@ -50,7 +52,9 @@ export class ClaudeAdapter {
 
   async stream(args: StreamArgs): Promise<void> {
     try {
-      const system = this.buildSystem(args.retrieved, args.retrievedTexts);
+      const system = args.overrideSystem
+        ? args.overrideSystem
+        : this.buildSystem(args.retrieved, args.retrievedTexts);
       const apiMessages = args.messages
         .filter((m) => m.role !== 'system' && m.text.trim())
         .map((m) => ({

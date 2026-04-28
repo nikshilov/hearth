@@ -454,12 +454,148 @@ composer-bar button:disabled {
   cursor: not-allowed;
 }
 
-/* ── Side pane: state-panel + router-log ───────────────────────── */
+/* ── Side pane: profile-snapshot + state-panel + router-log ───── */
 
-state-panel, router-log {
+profile-snapshot, state-panel, router-log {
   display: block;
   padding: var(--pad);
   border-bottom: 1px solid var(--border-soft);
+}
+
+/* Profile snapshot — the cartographer's live map */
+profile-snapshot {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--fg-soft);
+}
+profile-snapshot .ps-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+profile-snapshot .ps-title {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--fg-dim);
+}
+profile-snapshot .ps-mode {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 2px 6px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  color: var(--fg-muted);
+}
+profile-snapshot .ps-mode[data-mode="onboarding"] {
+  color: var(--accent);
+  border-color: var(--accent-deep);
+  background: rgba(224,114,104,0.08);
+}
+profile-snapshot .ps-meter {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+profile-snapshot .ps-meter-bar {
+  height: 3px;
+  background: var(--border-soft);
+  border-radius: 2px;
+  overflow: hidden;
+}
+profile-snapshot .ps-meter-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 600ms ease-out;
+}
+profile-snapshot .ps-meter-text {
+  font-size: 10px;
+  color: var(--fg-dim);
+  letter-spacing: 0.04em;
+}
+profile-snapshot ul.ps-areas {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 10px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+profile-snapshot li.ps-area {
+  display: grid;
+  grid-template-columns: 8px 1fr auto;
+  gap: 8px;
+  align-items: baseline;
+  padding: 3px 0;
+  font-size: 11px;
+}
+profile-snapshot .ps-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--border);
+  margin-top: 5px;
+}
+profile-snapshot li.ps-area[data-known="yes"] .ps-dot {
+  background: var(--accent);
+}
+profile-snapshot .ps-label {
+  color: var(--fg-soft);
+  letter-spacing: 0.02em;
+}
+profile-snapshot li.ps-area[data-known="yes"] .ps-label {
+  color: var(--fg);
+}
+profile-snapshot .ps-summary {
+  color: var(--fg-dim);
+  font-size: 10px;
+  text-align: right;
+  max-width: 60%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+profile-snapshot .ps-fog {
+  color: var(--fg-dim);
+  opacity: 0.5;
+  font-style: italic;
+}
+profile-snapshot .ps-resistance {
+  font-size: 10px;
+  color: var(--fg-dim);
+  margin: 8px 0;
+  padding: 6px 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: 4px;
+}
+profile-snapshot details.ps-raw {
+  margin-top: 10px;
+  font-size: 10px;
+}
+profile-snapshot details.ps-raw summary {
+  cursor: pointer;
+  color: var(--fg-dim);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 9px;
+  padding: 4px 0;
+}
+profile-snapshot details.ps-raw pre {
+  max-height: 280px;
+  overflow: auto;
+  margin: 4px 0 0 0;
+  padding: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: 4px;
+  font-size: 10px;
+  line-height: 1.45;
+  color: var(--fg-soft);
 }
 
 state-panel h2, router-log h2 {

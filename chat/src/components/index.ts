@@ -10,6 +10,7 @@ import { MemoryRow } from './memory-row.js';
 import { StatePanel } from './state-panel.js';
 import { RouterLog } from './router-log.js';
 import { HeartPulse } from './heart-pulse.js';
+import { ProfileSnapshot } from './profile-snapshot.js';
 
 export function registerComponents(): void {
   customElements.define('heart-pulse', HeartPulse);
@@ -19,8 +20,9 @@ export function registerComponents(): void {
   customElements.define('memory-row', MemoryRow);
   customElements.define('state-panel', StatePanel);
   customElements.define('router-log', RouterLog);
+  customElements.define('profile-snapshot', ProfileSnapshot);
 }
 
 export {
-  HeartPulse, ComposerBar, ChatThread, ChatMessage, MemoryRow, StatePanel, RouterLog,
+  HeartPulse, ComposerBar, ChatThread, ChatMessage, MemoryRow, StatePanel, RouterLog, ProfileSnapshot,
 };

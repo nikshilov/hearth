@@ -22,7 +22,7 @@ const MIME = {
 // Spawn esbuild watch
 const watcher = spawn('npx', ['esbuild',
   'src/main.ts', '--bundle', '--format=esm', '--target=es2022',
-  '--sourcemap', '--watch', '--outfile=dist/app.js',
+  '--sourcemap', '--watch', '--loader:.md=text', '--outfile=dist/app.js',
 ], { cwd: ROOT, stdio: 'inherit' });
 
 process.on('SIGINT', () => { watcher.kill(); process.exit(0); });
