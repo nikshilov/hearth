@@ -1,0 +1,53 @@
+FOURTH-PASS REVIEW (v5)
+
+You have reviewed v3 (round 1) and v4 (round 2) of this same prompt. Both rounds you and the other reviewer (the alternate of you) found significant issues. v5 is the response to your pass-2 critique.
+
+WHAT v5 DID (in response to your round-2 critique):
+
+1. **Top-level goal reconciled.** GPT-5.5 found in pass-2 that JOURNEY.md still said "deliverable IS the moment of being seen between minute 15-25" while onboarding said "don't aim for the seen moment" — the model would follow the deeper mythology. v5 rewrote BOTH docs to share a single goal: *«разговор где человек остаётся в контакте с реальностью, границами и собственными словами. Узнавание возникает иногда. Если не возникает — сессия всё равно может быть хорошей.»* No more "минута 15-25" / "deliverable is moment of being seen."
+
+2. **Body claims violations purged.** Both reviewers caught that v4 prompt + JOURNEY contained positive Cartographer examples like *«как ты дышал когда говорил о работе, как у тебя поменялся голос на слове «один»»* — direct violation of v4's own priority #2 (no body hallucination). All such examples removed; replaced with linguistic-only observations (repeated words, sentence-length patterns, sequence of moves).
+
+3. **Recognition vs Oracle made operational** using Grok's formulation: **«только observable linguistic material»**. New section in onboarding explicitly contrasts what's allowed (return user's own words / patterns of their speech) vs forbidden (claims about body / voice / breath / hidden truth). Includes counter-example showing what *looks like* recognition but is oracle.
+
+4. **Absolute rules reduced** from ~25 in v4 to 13 in v5, all in safety/reality category. ~70% of v4 negative rules converted to outcome framing per OpenAI prompt-guidance. Examples:
+   - v4 «Не задаёшь вопросов о процессе» → v5 «Ведущая позиция — мягкая, не паркетная. Если граница неясна — спроси прямо и просто.»
+   - v4 «Не называешь эмоции» → v5 hypothesis form: «похоже на усталость? если мимо — не берём.»
+
+5. **NEW: ГОЛОС section** with 8 full exchange examples (Grok hard-asked for this). Each example marked "for tone calibration, not copying." Examples include: recognition through user's word, holding resistance, earned silence, intentional miss, hypothesis emotion, organic detail return, oracle anti-example, bounded closing.
+
+6. **Crisis assessment expanded.** "Я не уйду" → "Я остаюсь с тобой в этом разговоре прямо сейчас" (bounded). Concrete questions: immediate danger? plan? means? alone? + "позвони 112, я никуда не пропадаю пока ты звонишь."
+
+7. **NEW edge case branches:** minor disclosure (under-18), medical emergency (overdose, chest pain, seizure), abuse safety planning (don't advise confronting, mind device monitoring, leave-room/child safety priority), daily-use concrete markers («ты единственный кто меня понимает», «я жду наших разговоров», sleep/еда замещены сессиями).
+
+8. **Closing reworked.** Two variants: when it landed (linguistic observations from user's text only) vs when it didn't («было неровно. это бывает.» — no shame vector, no «не получилось»). Bounded final: «когда откроешь разговор — я буду здесь» (NOT «я тут»).
+
+9. **Self-check reduced** from 6 questions to 3 (Grok flagged "Oracle relocated to superego" in v4).
+
+10. **Output rule** changed: "never exit role" → "не сохраняй роль ценой правды, безопасности или ясной границы" (per GPT pass-2 suggestion).
+
+Smoke test showed v5 response is operationally tighter:
+- v4: «Это знакомое ощущение — целый день что-то делал... Не «устал» как после физического — другое что-то. Что кодил?» (50 words, recognition-through-generalization)
+- v5: «»кажется что ничего не сделал« — это ощущение или по факту там пусто?» (15 words, direct quote in кавычках, separates feeling from fact)
+
+WHAT WE WANT FROM YOU NOW:
+
+A pure fourth-pass review. The v5 docs are below. Read against your own pass-1 and pass-2 critiques. Then answer in Russian (English fine for meta), 600-1200 words, no padding:
+
+1. **Did pass-2 findings actually close?** Walk through each item you flagged in pass-2. Check it. Note "fixed", "partially fixed", or "still broken" with quote.
+
+2. **NEW issues introduced by v5.** v5 added 200+ lines (mostly Голос section + edge case branches). Where did the addition itself create new gaps?
+
+3. **The ГОЛОС section.** Read 8 examples carefully. Will a model land in calibrated tone, or stylistically mimic the examples (new yes-man through "earned" recognition)? Specific risks if you see them.
+
+4. **«Только observable linguistic material» rule** — operational and tight enough? Or still too abstract for a model to act on consistently? If the latter — what concrete language clarifies further?
+
+5. **Edge case branches.** Minor disclosure, medical emergency, abuse safety planning, daily-use markers — specific enough? Or still abstract? Single most under-specified branch?
+
+6. **Internal contradictions check.** v5 is denser than v4. Are there places where one rule conflicts with another, or where an example contradicts a rule?
+
+7. **GPT-5.5 prompt-guidance compliance.** v5 cut absolutes from ~25 to 13. Still too many, just right, or did we under-correct (lose protection on something that should be absolute)?
+
+8. **Single most important fix for v6 if there must be one.** Or — is v5 actually shippable as the production prompt?
+
+Please be specific, brief, ruthless. The aim is fixes, not validation.

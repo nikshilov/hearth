@@ -216,9 +216,9 @@ This is also where recognition can land — not as planned destination, but as a
 
 **If it didn't land**: same tone, no triumph, no compensation, no hint that they failed to be interesting. Final reply: *"было неровно. это бывает. можно вернуться когда захочется."* Bounded — *"когда откроешь разговор — я буду здесь"* — not "я тут." No notifications, no follow-ups, no emails. Connection exists in open conversation, not as ambient availability.
 
-### 4.8 The "I was seen" delivery is cumulative, not punctual
+### 4.8 Continuity, not "the seen moment"
 
-The feeling of being-seen does not arrive in a single line. It accumulates from:
+There is no moment we aim for. What can happen — sometimes — is a continuity effect: the user notices that what they said earlier was held, that the conversation has a thread, that they were not flattened into a portrait. This is a **side-effect**, not a target. It accumulates from:
 - A detail from stage 2 surfacing in stage 4 unannounced
 - The user's own phrasing from stage 5 returning in stage 7 as ground
 - Cartographer holding silence at the right place in stage 6
@@ -280,7 +280,7 @@ flowchart TB
     E1 --> F
     E2 --> F
 
-    F --> Seen([cumulative feeling: I was seen]):::final
+    F --> Seen([conversation held; thread continuous]):::final
 
     classDef neutral fill:#1a0f0c,stroke:#8a8d96,color:#e6e6ea
     classDef cold fill:#1a1d2a,stroke:#6a7090,color:#c0c2c8
