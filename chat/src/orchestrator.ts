@@ -12,8 +12,13 @@
  * Anti-MF0 rule: this file caps at ~200 lines.
  */
 import type { PulseClient } from './api.js';
-import type { ClaudeAdapter } from './llm.js';
+import type { StreamArgs } from './llm.js';
 import type { AppState } from './state.js';
+
+/** Public surface the orchestrator uses — `MockClaudeAdapter` satisfies this too. */
+export interface LLMStreamer {
+  stream(args: StreamArgs): Promise<void>;
+}
 import { pulseBurst } from './components/heart-pulse.js';
 import { cartographer } from './cartographer.js';
 import { ONBOARDING_PROMPT_RU } from './cartographer-prompts.js';
@@ -25,7 +30,7 @@ import {
 
 interface OrchestratorDeps {
   pulse: PulseClient;
-  llm: ClaudeAdapter | null;
+  llm: LLMStreamer | null;
   state: AppState;
 }
 

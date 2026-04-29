@@ -256,6 +256,23 @@ composer-bar button:disabled {
   cursor: not-allowed;
 }
 
+/* ── Demo badge — only when ?demo=1 ────────────────────────────── */
+.demo-badge {
+  display: none;
+  margin-left: 8px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--accent-deep);
+  opacity: 0.55;
+  vertical-align: middle;
+  pointer-events: none;
+}
+body.demo-mode .demo-badge {
+  display: inline-block;
+}
+
 /* ── Ember — static corner anchor (no animation, no burst) ─────── */
 heart-pulse {
   display: inline-flex;
