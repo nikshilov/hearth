@@ -11,7 +11,7 @@
  *
  * Anti-MF0 rule: this file caps at ~200 lines.
  */
-import type { PulseClient } from './api.js';
+import type { PulseClient, RetrieveResponse } from './api.js';
 import type { StreamArgs } from './llm.js';
 import type { AppState } from './state.js';
 
@@ -19,6 +19,9 @@ import type { AppState } from './state.js';
 export interface LLMStreamer {
   stream(args: StreamArgs): Promise<void>;
 }
+import { buildContextPacks } from './context/context-builder.js';
+import { routeConversation } from './router/domain-router.js';
+import { allowedCapabilitiesFor } from './tools/tool-policy.js';
 import { pulseBurst } from './components/heart-pulse.js';
 import { cartographer } from './cartographer.js';
 import { ONBOARDING_PROMPT_RU } from './cartographer-prompts.js';
@@ -28,7 +31,7 @@ import {
   type ContinuousExtractor,
 } from './continuous-extractor.js';
 
-interface OrchestratorDeps {
+export interface OrchestratorDeps {
   pulse: PulseClient;
   llm: LLMStreamer | null;
   state: AppState;
@@ -57,12 +60,9 @@ async function onComposerSend(ev: Event): Promise<void> {
     await runNormalTurn(text);
   }
 
-  // Soft transition: once we've collected enough, leave onboarding.
+  // Soft transition: once we've collected enough, leave onboarding silently.
   if (cartographer.shouldSwitchToNormal()) {
     cartographer.forceMode('normal');
-    deps.state.appendSystem(
-      'картограф закончила. дальше — обычный разговор. карта продолжит дополняться по ходу.',
-    );
   }
 
   // Post-turn extraction in background — never blocks UX.
@@ -103,19 +103,47 @@ async function runOnboardingTurn(text: string): Promise<void> {
   }
 }
 
+export async function onComposerSendForTest(text: string, testDeps: OrchestratorDeps): Promise<void> {
+  const prev = deps;
+  deps = testDeps;
+  try {
+    cartographer.bumpTurn();
+    if (cartographer.state.mode === 'onboarding') {
+      await runOnboardingTurn(text);
+    } else {
+      await runNormalTurn(text);
+    }
+    if (cartographer.shouldSwitchToNormal()) {
+      cartographer.forceMode('normal');
+    }
+  } finally {
+    deps = prev;
+  }
+}
+export async function runNormalTurnForTest(text: string, testDeps: OrchestratorDeps): Promise<void> {
+  const prev = deps;
+  deps = testDeps;
+  try {
+    await runNormalTurn(text);
+  } finally {
+    deps = prev;
+  }
+}
+
 async function runNormalTurn(text: string): Promise<void> {
   if (!deps) return;
   const { pulse, llm, state } = deps;
 
   state.appendUser(text);
+  const route = routeConversation(text);
+  const allowedCapabilities = allowedCapabilitiesFor(route);
 
   // Fire ingest in parallel; don't await
   pulse.ingest([{ text, ts: new Date().toISOString() }]).catch((e) => {
     console.error('ingest failed:', e);
-    state.appendSystem(`ingest error: ${e.message}`);
   });
 
-  let retrieval;
+  let retrieval: RetrieveResponse | undefined;
   try {
     pulseBurst();
     retrieval = await pulse.recall({
@@ -126,24 +154,36 @@ async function runNormalTurn(text: string): Promise<void> {
     });
     state.appendRouterDecision(
       {
-        mode: retrieval.mode_used,
-        confidence: retrieval.confidence,
-        classifier: retrieval.classifier,
-        reasoning: retrieval.reasoning,
+        mode: `${route.domains.join('+')} / ${retrieval.mode_used}`,
+        confidence: Math.min(route.confidence, retrieval.confidence),
+        classifier: `hearth:${retrieval.classifier}`,
+        reasoning: [...route.reasons, retrieval.reasoning].filter(Boolean).join('; '),
       },
       text,
     );
   } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
-    state.appendSystem(`recall error: ${msg}`);
-    return;
+    console.warn('recall failed, continuing without memory:', e);
+    state.appendRouterDecision(
+      {
+        mode: `${route.domains.join('+')} / no-memory`,
+        confidence: route.confidence,
+        classifier: 'hearth:fallback',
+        reasoning: route.reasons.join('; '),
+      },
+      text,
+    );
   }
+
+  const contextPacks = buildContextPacks({
+    route,
+    retrieval,
+    profile: cartographer.state.profile,
+    allowedCapabilities,
+  });
 
   if (!llm) {
     state.appendSystem(
-      `[no AI key set] retrieval: mode=${retrieval.mode_used}, ` +
-        `events=${retrieval.event_ids.join(',')}, ` +
-        `classifier=${retrieval.classifier} (${retrieval.confidence.toFixed(2)})`,
+      'Anthropic key is not set. Add it in dev settings to let Hearth answer.',
     );
     return;
   }
@@ -152,10 +192,12 @@ async function runNormalTurn(text: string): Promise<void> {
   try {
     await llm.stream({
       messages: state.messages.slice(0, -1),
+      route,
+      contextPacks,
       retrieved: retrieval,
       onChunk: (chunk) => state.appendAssistantChunk(assistantMsg.id, chunk),
       onComplete: () => {
-        state.attachRetrievalMeta(assistantMsg.id, retrieval);
+        if (retrieval) state.attachRetrievalMeta(assistantMsg.id, retrieval);
         state.finishAssistant(assistantMsg.id);
       },
       onError: (err) => {

@@ -40,7 +40,7 @@ const params = new URLSearchParams(location.search);
 if (params.has('reset')) cartographer.reset();
 if (params.has('onboarding')) cartographer.forceMode('onboarding');
 if (params.has('normal')) cartographer.forceMode('normal');
-if (params.has('debug')) document.body.classList.add('debug-mode');
+if (params.get('debug') === '1') document.body.classList.add('debug-mode');
 
 // Demo flow goes through normal mode by default — we want the GIF to show
 // retrieval landing on fixture memories, not the empty onboarding screen.

@@ -44,6 +44,7 @@ export class ChatMessage extends HTMLElement {
 
     // Inject <memory-row> for assistant messages once retrieval attached
     if (
+      isDebugMode() &&
       this._message.role === 'assistant' &&
       this._message.retrieval &&
       !this.memoryNode
@@ -54,4 +55,8 @@ export class ChatMessage extends HTMLElement {
       this.memoryNode = node;
     }
   }
+}
+
+function isDebugMode(): boolean {
+  return typeof location !== 'undefined' && new URLSearchParams(location.search).get('debug') === '1';
 }

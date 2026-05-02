@@ -12,6 +12,9 @@
 import Anthropic from '@anthropic-ai/sdk';
 import type { Message } from './state.js';
 import type { RetrieveResponse } from './api.js';
+import type { ContextPack } from './context/context-pack.js';
+import type { ConversationRoute } from './router/domain-router.js';
+import { buildSystemPrompt } from './prompt/prompt-builder.js';
 
 export interface LLMConfig {
   apiKey: string;
@@ -22,6 +25,8 @@ export interface LLMConfig {
 
 export interface StreamArgs {
   messages: Message[];
+  route?: ConversationRoute;
+  contextPacks?: ContextPack[];
   retrieved?: RetrieveResponse;
   retrievedTexts?: Map<number, string>;
   /** When set, replaces the default system prompt entirely. Used for cartographer onboarding. */
@@ -54,7 +59,7 @@ export class ClaudeAdapter {
     try {
       const system = args.overrideSystem
         ? args.overrideSystem
-        : this.buildSystem(args.retrieved, args.retrievedTexts);
+        : this.buildSystem(args);
       const apiMessages = args.messages
         .filter((m) => m.role !== 'system' && m.text.trim())
         .map((m) => ({
@@ -78,15 +83,20 @@ export class ClaudeAdapter {
     }
   }
 
-  private buildSystem(
-    retrieved: RetrieveResponse | undefined,
-    texts: Map<number, string> | undefined,
-  ): string {
+  private buildSystem(args: StreamArgs): string {
+    if (args.contextPacks || args.route) {
+      return buildSystemPrompt({
+        baseSystem: this.cfg.baseSystem ?? DEFAULT_SYSTEM,
+        route: args.route,
+        contextPacks: args.contextPacks,
+      });
+    }
+
     const parts: string[] = [this.cfg.baseSystem ?? DEFAULT_SYSTEM];
 
-    if (retrieved && retrieved.event_ids.length > 0) {
-      const lines = retrieved.event_ids.map((id) => {
-        const text = texts?.get(id);
+    if (args.retrieved && args.retrieved.event_ids.length > 0) {
+      const lines = args.retrieved.event_ids.map((id) => {
+        const text = args.retrievedTexts?.get(id);
         return text
           ? `[event_id=${id}] ${text}`
           : `[event_id=${id}] (text not loaded; reference by id only)`;
@@ -97,9 +107,9 @@ export class ClaudeAdapter {
         ...lines,
         '</retrieved_memory>',
         '',
-        `Mode used: ${retrieved.mode_used} (router: ${retrieved.classifier}, confidence ${retrieved.confidence.toFixed(2)})`,
+        `Mode used: ${args.retrieved.mode_used} (router: ${args.retrieved.classifier}, confidence ${args.retrieved.confidence.toFixed(2)})`,
       );
-    } else if (retrieved) {
+    } else if (args.retrieved) {
       parts.push(
         '',
         '<retrieved_memory>(no memories matched)</retrieved_memory>',

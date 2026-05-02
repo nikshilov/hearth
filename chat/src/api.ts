@@ -44,10 +44,20 @@ export interface RouteDecision {
   reasoning?: string;
 }
 
+export interface PulseObservation {
+  source_kind: 'hearth_chat';
+  source_id: string;
+  scope: 'nik' | 'elle' | 'shared';
+  captured_at: string;
+  observed_at: string;
+  version: number;
+  content_text: string;
+  metadata: { client: 'hearth' };
+}
 export interface IngestObservation {
   text: string;
   ts?: string;
-  scope?: string;
+  scope?: 'nik' | 'elle' | 'shared';
 }
 
 export interface PulseConfig {
@@ -74,7 +84,9 @@ export class PulseClient {
   }
 
   async ingest(observations: IngestObservation[]): Promise<{ ok: boolean }> {
-    return await this.post('/ingest', { observations });
+    return await this.post('/ingest', {
+      observations: normalizeIngestObservations(observations),
+    });
   }
 
   private async post<T>(path: string, body: unknown): Promise<T> {
@@ -96,6 +108,22 @@ export class PulseClient {
     }
     return (await resp.json()) as T;
   }
+}
+
+export function normalizeIngestObservations(observations: IngestObservation[]): PulseObservation[] {
+  return observations.map((observation) => {
+    const ts = observation.ts ?? new Date().toISOString();
+    return {
+      source_kind: 'hearth_chat',
+      source_id: `hearth_chat:${ts}`,
+      scope: observation.scope ?? 'nik',
+      captured_at: ts,
+      observed_at: ts,
+      version: 1,
+      content_text: observation.text,
+      metadata: { client: 'hearth' },
+    };
+  });
 }
 
 const pendingBridgeCalls = new Map<string, (body: unknown) => void>();
@@ -124,13 +152,14 @@ function iosBridgePost<T>(
   });
 }
 
-// Called by Swift via evaluateJavaScript("window.__pulseHTTPResponse(...)")
-window.__pulseHTTPResponse = (id, body) => {
-  const cb = pendingBridgeCalls.get(id);
-  if (!cb) return;
-  pendingBridgeCalls.delete(id);
-  cb(body);
-};
+if (typeof window !== 'undefined') {
+  window.__pulseHTTPResponse = (id, body) => {
+    const cb = pendingBridgeCalls.get(id);
+    if (!cb) return;
+    pendingBridgeCalls.delete(id);
+    cb(body);
+  };
+}
 
 /** Build a default Pulse client from env / localStorage / sane defaults. */
 export function makeClient(): PulseClient {
