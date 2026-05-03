@@ -7,6 +7,8 @@
  * `window.webkit?.messageHandlers?.pulse_http`.
  */
 
+import type { PulseContextResult } from './context/pulse-context-result.js';
+
 export type QueryMode = 'auto' | 'factual' | 'empathic' | 'chain';
 
 export interface UserState {
@@ -37,6 +39,18 @@ export interface RetrieveResponse {
   reasoning?: string;
 }
 
+export interface ContextQueryRequest {
+  query: string;
+  mode?: QueryMode;
+  top_k?: number;
+  scope?: 'nik' | 'elle' | 'shared';
+  audience?: string;
+  privacy_floor?: string;
+  include_trace?: boolean;
+  user_state?: UserState;
+  domain_hints?: string[];
+}
+
 export interface RouteDecision {
   mode: string;
   confidence: number;
@@ -65,6 +79,13 @@ export interface PulseConfig {
   apiKey: string;
 }
 
+export class PulseHTTPError extends Error {
+  constructor(public status: number, public path: string, message: string) {
+    super(message);
+    this.name = 'PulseHTTPError';
+  }
+}
+
 declare global {
   interface Window {
     webkit?: {
@@ -83,6 +104,18 @@ export class PulseClient {
     return await this.post<RetrieveResponse>('/retrieve', req);
   }
 
+  async contextQuery(req: ContextQueryRequest): Promise<PulseContextResult> {
+    const result = await this.post<PulseContextResult>('/context/query', req);
+    if (result.schema_version !== 'pulse.context.v1') {
+      throw new Error(
+        `Unsupported Pulse context schema: ${String(
+          (result as { schema_version?: unknown }).schema_version,
+        )}`,
+      );
+    }
+    return result;
+  }
+
   async ingest(observations: IngestObservation[]): Promise<{ ok: boolean }> {
     return await this.post('/ingest', {
       observations: normalizeIngestObservations(observations),
@@ -90,7 +123,7 @@ export class PulseClient {
   }
 
   private async post<T>(path: string, body: unknown): Promise<T> {
-    if (window.webkit?.messageHandlers?.pulse_http) {
+    if (typeof window !== 'undefined' && window.webkit?.messageHandlers?.pulse_http) {
       return await iosBridgePost<T>(path, body, this.cfg);
     }
     const url = `${this.cfg.baseUrl.replace(/\/$/, '')}${path}`;
@@ -104,7 +137,11 @@ export class PulseClient {
     });
     if (!resp.ok) {
       const text = await resp.text().catch(() => '');
-      throw new Error(`Pulse HTTP ${resp.status} on ${path}: ${text.slice(0, 500)}`);
+      throw new PulseHTTPError(
+        resp.status,
+        path,
+        `Pulse HTTP ${resp.status} on ${path}: ${text.slice(0, 500)}`,
+      );
     }
     return (await resp.json()) as T;
   }

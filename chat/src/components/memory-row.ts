@@ -1,27 +1,63 @@
-/**
- * <memory-row> — collapsible "▾ memory used" under an assistant bubble.
- * Renders top-K event_ids + mode_used + classifier + reasoning.
- */
 import type { RetrieveResponse } from '../api.js';
+import type { PulseContextResult } from '../context/pulse-context-result.js';
 
 export class MemoryRow extends HTMLElement {
   private _retrieval: RetrieveResponse | null = null;
+  private _context: PulseContextResult | null = null;
   private body: HTMLElement | null = null;
   private toggle: HTMLButtonElement | null = null;
   private expanded = false;
 
   set retrieval(r: RetrieveResponse) {
     this._retrieval = r;
+    this._context = null;
+    this.render();
+  }
+
+  set context(c: PulseContextResult) {
+    this._context = c;
+    this._retrieval = null;
     this.render();
   }
 
   connectedCallback(): void {
-    if (this._retrieval) this.render();
+    if (this._context || this._retrieval) this.render();
   }
 
   private render(): void {
-    if (!this._retrieval) return;
-    const r = this._retrieval;
+    if (this._context) {
+      this.renderContext(this._context);
+      return;
+    }
+    if (this._retrieval) this.renderRetrieval(this._retrieval);
+  }
+
+  private renderContext(c: PulseContextResult): void {
+    const arrow = this.expanded ? '▴' : '▾';
+    const counts = [
+      `facts ${c.facts.length}`,
+      `anchors ${c.emotional_anchors.length}`,
+      `events ${c.events.length}`,
+      `entities ${c.entities.length}`,
+      `relations ${c.relations.length}`,
+      `questions ${c.importance_questions.length}`,
+    ].join(' · ');
+
+    this.innerHTML = `
+      <button type="button" class="toggle" aria-expanded="${this.expanded}">
+        ${arrow} context used <span style="opacity:0.6">·</span> ${escapeHTML(counts)}
+        <span class="mode-badge" data-mode="${escapeHTML(c.mode_used)}">${escapeHTML(c.mode_used)}</span>
+      </button>
+      <div class="body" ${this.expanded ? '' : 'hidden'}>
+        <div class="meta">scope: ${escapeHTML(c.scope)}</div>
+      </div>
+    `;
+    this.toggle = this.querySelector('.toggle');
+    this.body = this.querySelector('.body');
+    this.toggle?.addEventListener('click', () => this.toggleExpand());
+  }
+
+  private renderRetrieval(r: RetrieveResponse): void {
     const arrow = this.expanded ? '▴' : '▾';
     const count = `${r.event_ids.length} event${r.event_ids.length === 1 ? '' : 's'}`;
     const modeIcon = MODE_ICONS[r.mode_used] ?? '✨';
@@ -49,7 +85,6 @@ export class MemoryRow extends HTMLElement {
         <div class="meta">${meta}</div>
       </div>
     `;
-
     this.toggle = this.querySelector('.toggle');
     this.body = this.querySelector('.body');
     this.toggle?.addEventListener('click', () => this.toggleExpand());

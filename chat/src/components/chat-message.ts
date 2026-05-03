@@ -42,8 +42,18 @@ export class ChatMessage extends HTMLElement {
       delete this.dataset.streaming;
     }
 
-    // Inject <memory-row> for assistant messages once retrieval attached
+    // Inject debug-only context/retrieval row for assistant messages.
     if (
+      isDebugMode() &&
+      this._message.role === 'assistant' &&
+      this._message.context &&
+      !this.memoryNode
+    ) {
+      const node = document.createElement('memory-row') as MemoryRow;
+      node.context = this._message.context;
+      this.appendChild(node);
+      this.memoryNode = node;
+    } else if (
       isDebugMode() &&
       this._message.role === 'assistant' &&
       this._message.retrieval &&

@@ -6,6 +6,7 @@
  * state mutations. Components must NEVER mutate state directly; they call
  * the methods below (each fires a typed event downstream).
  */
+import type { PulseContextResult } from './context/pulse-context-result.js';
 import type { RetrieveResponse, RouteDecision, UserState } from './api.js';
 
 export type Role = 'user' | 'assistant' | 'system';
@@ -15,6 +16,7 @@ export interface Message {
   role: Role;
   text: string;
   ts: number;
+  context?: PulseContextResult;
   retrieval?: RetrieveResponse;
   streaming?: boolean;
 }
@@ -86,6 +88,13 @@ export class AppState extends EventTarget {
     const m = this.messages.find((x) => x.id === messageId);
     if (!m) return;
     m.retrieval = meta;
+    this.dispatchEvent(new CustomEvent('retrievalAttached', { detail: m }));
+  }
+
+  attachContextMeta(messageId: string, context: PulseContextResult): void {
+    const m = this.messages.find((x) => x.id === messageId);
+    if (!m) return;
+    m.context = context;
     this.dispatchEvent(new CustomEvent('retrievalAttached', { detail: m }));
   }
 

@@ -12,6 +12,7 @@
  * Anti-MF0 rule: this file caps at ~200 lines.
  */
 import type { PulseClient, RetrieveResponse } from './api.js';
+import type { PulseContextResult } from './context/pulse-context-result.js';
 import type { StreamArgs } from './llm.js';
 import type { AppState } from './state.js';
 
@@ -143,29 +144,34 @@ async function runNormalTurn(text: string): Promise<void> {
     console.error('ingest failed:', e);
   });
 
-  let retrieval: RetrieveResponse | undefined;
+  let pulseContext: PulseContextResult | undefined;
   try {
     pulseBurst();
-    retrieval = await pulse.recall({
+    pulseContext = await pulse.contextQuery({
       query: text,
       mode: 'auto',
       top_k: 5,
+      scope: 'nik',
+      audience: 'hearth_chat',
+      privacy_floor: 'private',
       user_state: state.userState,
+      domain_hints: route.domains,
+      include_trace: isDebugMode(),
     });
     state.appendRouterDecision(
       {
-        mode: `${route.domains.join('+')} / ${retrieval.mode_used}`,
-        confidence: Math.min(route.confidence, retrieval.confidence),
-        classifier: `hearth:${retrieval.classifier}`,
-        reasoning: [...route.reasons, retrieval.reasoning].filter(Boolean).join('; '),
+        mode: `${route.domains.join('+')} / ${pulseContext.mode_used}`,
+        confidence: route.confidence,
+        classifier: 'hearth:pulse-context',
+        reasoning: route.reasons.join('; '),
       },
       text,
     );
   } catch (e) {
-    console.warn('recall failed, continuing without memory:', e);
+    console.warn('context query failed, continuing without Pulse context:', e);
     state.appendRouterDecision(
       {
-        mode: `${route.domains.join('+')} / no-memory`,
+        mode: `${route.domains.join('+')} / no-context`,
         confidence: route.confidence,
         classifier: 'hearth:fallback',
         reasoning: route.reasons.join('; '),
@@ -176,7 +182,7 @@ async function runNormalTurn(text: string): Promise<void> {
 
   const contextPacks = buildContextPacks({
     route,
-    retrieval,
+    pulseContext,
     profile: cartographer.state.profile,
     allowedCapabilities,
   });
@@ -194,10 +200,9 @@ async function runNormalTurn(text: string): Promise<void> {
       messages: state.messages.slice(0, -1),
       route,
       contextPacks,
-      retrieved: retrieval,
       onChunk: (chunk) => state.appendAssistantChunk(assistantMsg.id, chunk),
       onComplete: () => {
-        if (retrieval) state.attachRetrievalMeta(assistantMsg.id, retrieval);
+        if (pulseContext) state.attachContextMeta(assistantMsg.id, pulseContext);
         state.finishAssistant(assistantMsg.id);
       },
       onError: (err) => {
@@ -210,6 +215,11 @@ async function runNormalTurn(text: string): Promise<void> {
     state.appendAssistantChunk(assistantMsg.id, `[stream error: ${msg}]`);
     state.finishAssistant(assistantMsg.id);
   }
+}
+
+
+function isDebugMode(): boolean {
+  return typeof location !== 'undefined' && new URLSearchParams(location.search).get('debug') === '1';
 }
 
 async function fireExtraction(): Promise<void> {

@@ -10,7 +10,8 @@
  *
  * Never imported when ?demo=1 is absent — main.ts gates the import.
  */
-import { PulseClient, type IngestObservation, type RetrieveRequest, type RetrieveResponse } from './api.js';
+import { PulseClient, type ContextQueryRequest, type IngestObservation, type RetrieveRequest, type RetrieveResponse } from './api.js';
+import type { PulseContextResult } from './context/pulse-context-result.js';
 import type { ClaudeAdapter, StreamArgs } from './llm.js';
 import { DEMO_EVENTS, DEMO_FALLBACK, DEMO_TURNS } from './demo-fixtures.js';
 
@@ -74,6 +75,34 @@ export class MockPulseClient extends PulseClient {
       confidence: 0.78,
       classifier: 'demo-fixture',
       reasoning: `query: ${req.query.slice(0, 40)}…`,
+    };
+  }
+
+
+  override async contextQuery(req: ContextQueryRequest): Promise<PulseContextResult> {
+    await sleep(200 + Math.random() * 200);
+    const turnIndex = getTurnIndex();
+    const turn = DEMO_TURNS[turnIndex] ?? DEMO_FALLBACK;
+    const ids = turn.retrievedIds.length
+      ? turn.retrievedIds
+      : DEMO_EVENTS.slice(0, 3).map((e) => e.id);
+    const events = DEMO_EVENTS.filter((e) => ids.includes(e.id));
+    return {
+      schema_version: 'pulse.context.v1',
+      query: req.query,
+      mode_used: 'empathic',
+      scope: req.scope ?? 'nik',
+      facts: events.map((e) => ({ id: e.id, text: e.text, provenance: 'demo-fixture' })),
+      emotional_anchors: events
+        .filter((e) => e.anchor)
+        .map((e) => ({ event_id: e.id, summary: e.text })),
+      events: [],
+      entities: [],
+      relations: [],
+      forbidden: [],
+      private: [],
+      uncertainty: [],
+      importance_questions: [],
     };
   }
 

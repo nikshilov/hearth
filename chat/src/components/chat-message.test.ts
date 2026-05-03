@@ -2,15 +2,36 @@
 import { beforeAll, describe, expect, test } from 'vitest';
 import type { Message } from '../state.js';
 import { ChatMessage } from './chat-message.js';
+import { MemoryRow } from './memory-row.js';
 
 const TAG = 'chat-message-under-test';
 
 beforeAll(() => {
   if (!customElements.get(TAG)) customElements.define(TAG, ChatMessage);
+  if (!customElements.get('memory-row')) customElements.define('memory-row', MemoryRow);
 });
 
 function makeNode(): ChatMessage {
   return document.createElement(TAG) as ChatMessage;
+}
+
+function makePulseContext(patch = {}) {
+  return {
+    schema_version: 'pulse.context.v1' as const,
+    query: 'test',
+    mode_used: 'empathic',
+    scope: 'nik',
+    facts: [],
+    emotional_anchors: [],
+    events: [],
+    entities: [],
+    relations: [],
+    forbidden: [],
+    private: [],
+    uncertainty: [],
+    importance_questions: [],
+    ...patch,
+  };
 }
 
 describe('ChatMessage', () => {
@@ -36,22 +57,23 @@ describe('ChatMessage', () => {
     expect(node.querySelector('memory-row')).toBeNull();
   });
 
-  test('does not enable memory metadata for debug=0', () => {
-    history.replaceState(null, '', '/?debug=0');
+  test('shows typed context summary only in debug mode', () => {
+    history.replaceState(null, '', '/?debug=1');
     const node = makeNode();
     node.message = {
-      id: 'm2',
+      id: 'm3',
       role: 'assistant',
-      text: 'Без отладочной строки.',
+      text: 'Ответ.',
       ts: Date.now(),
-      retrieval: {
-        event_ids: [7],
-        mode_used: 'factual',
-        confidence: 0.9,
-        classifier: 'hybrid',
-      },
+      context: makePulseContext({
+        facts: [{ id: 1, text: 'private fact text' }],
+        forbidden: [{ subject_kind: 'entity', subject_id: 9, reason: 'safety boundary', policy: 'never-default' }],
+      }),
     };
 
-    expect(node.querySelector('memory-row')).toBeNull();
+    expect(node.textContent).toContain('context used');
+    expect(node.textContent).toContain('facts 1');
+    expect(node.textContent).not.toContain('private fact text');
+    expect(node.textContent).not.toContain('never-default');
   });
 });

@@ -56,6 +56,33 @@ describe('buildContextPacks', () => {
     expect(packs.map((pack) => pack.name)).not.toContain('pulse_memories');
   });
 
+  test('includes typed Pulse context packs instead of legacy retrieved event IDs', () => {
+    const route = routeConversation('почему меня не выбирают');
+    const packs = buildContextPacks({
+      route,
+      pulseContext: {
+        schema_version: 'pulse.context.v1',
+        query: 'почему меня не выбирают',
+        mode_used: 'empathic',
+        scope: 'nik',
+        facts: [{ id: 1, text: 'Nik needs to feel chosen without proving value' }],
+        emotional_anchors: [{ event_id: 10, summary: 'Choosing wound is active' }],
+        events: [],
+        entities: [],
+        relations: [],
+        forbidden: [],
+        private: [],
+        uncertainty: [],
+        importance_questions: [],
+      },
+      allowedCapabilities: [],
+    });
+
+    expect(packs.map((p) => p.name)).toContain('pulse_facts');
+    expect(packs.map((p) => p.name)).toContain('pulse_emotional_anchors');
+    expect(JSON.stringify(packs)).not.toContain('event_id=');
+  });
+
   test('adds body pack only when health capability is allowed', () => {
     const route = routeConversation('Что у меня с телом сегодня, я какой-то ватный');
     const packs = buildContextPacks({

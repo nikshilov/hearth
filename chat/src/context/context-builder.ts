@@ -1,10 +1,13 @@
 import type { RetrieveResponse } from '../api.js';
 import type { ConversationRoute } from '../router/domain-router.js';
 import type { Capability } from '../tools/capability-registry.js';
+import { contextResultToPacks } from './pulse-context-adapter.js';
+import type { PulseContextResult } from './pulse-context-result.js';
 import type { ContextPack } from './context-pack.js';
 
 export interface BuildContextPacksArgs {
   route: ConversationRoute;
+  pulseContext?: PulseContextResult;
   retrieval?: RetrieveResponse;
   retrievedTexts?: Map<number, string>;
   profile?: unknown;
@@ -16,6 +19,10 @@ export function buildContextPacks(args: BuildContextPacksArgs): ContextPack[] {
 
   if (args.retrieval && hasLoadedMemoryText(args.retrieval, args.retrievedTexts)) {
     packs.push(buildPulsePack(args.retrieval, args.retrievedTexts));
+  }
+
+  if (args.pulseContext) {
+    packs.push(...contextResultToPacks(args.pulseContext));
   }
 
   const profilePack = buildCartographerPack(args.profile);
