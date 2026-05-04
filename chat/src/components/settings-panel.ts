@@ -47,6 +47,10 @@ export class SettingsPanel extends HTMLElement {
     const identity = (this.querySelector<HTMLInputElement>(
       'input[name="identity"]:checked',
     )?.value ?? 'default') as 'elle' | 'default';
+    const backend = (this.querySelector<HTMLInputElement>(
+      'input[name="llm_backend"]:checked',
+    )?.value ?? 'api') as 'api' | 'local';
+    const proxyUrl = get('input[name="proxy_url"]').value.trim();
     const override = get('textarea[name="system_override"]').value;
 
     if (anthropic) localStorage.setItem('anthropic:key', anthropic);
@@ -65,6 +69,10 @@ export class SettingsPanel extends HTMLElement {
     }
 
     localStorage.setItem('hearth:identity', identity);
+
+    localStorage.setItem('hearth:llm_backend', backend);
+    if (proxyUrl) localStorage.setItem('hearth:proxy_url', proxyUrl);
+    else localStorage.removeItem('hearth:proxy_url');
 
     if (override.trim()) localStorage.setItem('hearth:system_override', override);
     else localStorage.removeItem('hearth:system_override');
@@ -103,10 +111,17 @@ export class SettingsPanel extends HTMLElement {
     set('input[name="pulse_key"]', apiKey);
 
     const identity = localStorage.getItem('hearth:identity') === 'elle' ? 'elle' : 'default';
-    const radio = this.querySelector<HTMLInputElement>(
+    const idRadio = this.querySelector<HTMLInputElement>(
       `input[name="identity"][value="${identity}"]`,
     );
-    if (radio) radio.checked = true;
+    if (idRadio) idRadio.checked = true;
+
+    const backend = localStorage.getItem('hearth:llm_backend') === 'local' ? 'local' : 'api';
+    const beRadio = this.querySelector<HTMLInputElement>(
+      `input[name="llm_backend"][value="${backend}"]`,
+    );
+    if (beRadio) beRadio.checked = true;
+    set('input[name="proxy_url"]', localStorage.getItem('hearth:proxy_url') ?? '');
 
     set(
       'textarea[name="system_override"]',
@@ -142,6 +157,14 @@ export class SettingsPanel extends HTMLElement {
           <label><input type="radio" name="identity" value="elle" /> Elle (русский голос)</label>
           <label><input type="radio" name="identity" value="default" /> Default (generic Hearth)</label>
         </fieldset>
+        <fieldset>
+          <legend>LLM backend</legend>
+          <label><input type="radio" name="llm_backend" value="local" /> Local Claude (Max подписка)</label>
+          <label><input type="radio" name="llm_backend" value="api" /> API key</label>
+        </fieldset>
+        <label>chat-proxy URL <small>(только для Local backend)</small>
+          <input type="text" name="proxy_url" autocomplete="off" placeholder="http://127.0.0.1:18791" />
+        </label>
         <label>System prompt override <small>(пусто = встроенный)</small>
           <textarea name="system_override" rows="8" placeholder="Оставь пустым чтобы использовать дефолт выбранного identity."></textarea>
         </label>

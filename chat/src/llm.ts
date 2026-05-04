@@ -140,20 +140,36 @@ export class ClaudeAdapter {
   }
 }
 
-export function makeAdapter(): ClaudeAdapter | null {
+export type LLMBackend = 'api' | 'local';
+
+export function getBackend(): LLMBackend {
+  try {
+    return localStorage.getItem('hearth:llm_backend') === 'local' ? 'local' : 'api';
+  } catch {
+    return 'api';
+  }
+}
+
+function readSystemOverride(): string | undefined {
+  try {
+    const v = localStorage.getItem('hearth:system_override');
+    return v && v.trim() ? v : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+import type { LLMStreamer } from './orchestrator.js';
+import { makeLocalAdapter } from './llm-local.js';
+
+export function makeAdapter(): LLMStreamer | null {
+  if (getBackend() === 'local') {
+    // Local Claude CLI via chat-proxy (uses Max subscription, no API key needed).
+    return makeLocalAdapter();
+  }
   const apiKey =
     localStorage.getItem('anthropic:key') ??
     (window as unknown as { ANTHROPIC_API_KEY?: string }).ANTHROPIC_API_KEY;
   if (!apiKey) return null;
-  // Optional system prompt override from Settings panel.
-  // When unset, ClaudeAdapter falls back to chooseDefaultSystem(getIdentity()).
-  const override = (() => {
-    try {
-      const v = localStorage.getItem('hearth:system_override');
-      return v && v.trim() ? v : undefined;
-    } catch {
-      return undefined;
-    }
-  })();
-  return new ClaudeAdapter({ apiKey, baseSystem: override });
+  return new ClaudeAdapter({ apiKey, baseSystem: readSystemOverride() });
 }

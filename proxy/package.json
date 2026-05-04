@@ -1,0 +1,14 @@
+{
+  "name": "hearth-chat-proxy",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local HTTP bridge from Hearth browser to `claude` CLI (Max subscription).",
+  "type": "module",
+  "scripts": {
+    "start": "node chat-proxy.mjs",
+    "dev": "node --watch chat-proxy.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

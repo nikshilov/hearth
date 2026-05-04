@@ -120,6 +120,34 @@ describe('SettingsPanel', () => {
     document.body.removeChild(node);
   });
 
+  test('save() persists backend choice and proxy URL', () => {
+    const node = makeNode();
+    document.body.appendChild(node);
+    node.open();
+    node.querySelector<HTMLInputElement>('input[name="anthropic_key"]')!.value = 'k';
+    node.querySelector<HTMLInputElement>('input[name="llm_backend"][value="local"]')!.checked = true;
+    node.querySelector<HTMLInputElement>('input[name="proxy_url"]')!.value = 'http://127.0.0.1:18791';
+    node.save();
+    expect(localStorage.getItem('hearth:llm_backend')).toBe('local');
+    expect(localStorage.getItem('hearth:proxy_url')).toBe('http://127.0.0.1:18791');
+    document.body.removeChild(node);
+  });
+
+  test('loads backend + proxy URL on open', () => {
+    vi.stubGlobal('localStorage', makeStorage({
+      'hearth:llm_backend': 'local',
+      'hearth:proxy_url': 'http://x:9',
+    }));
+    const node = makeNode();
+    document.body.appendChild(node);
+    node.open();
+    expect(
+      node.querySelector<HTMLInputElement>('input[name="llm_backend"][value="local"]')!.checked,
+    ).toBe(true);
+    expect(node.querySelector<HTMLInputElement>('input[name="proxy_url"]')!.value).toBe('http://x:9');
+    document.body.removeChild(node);
+  });
+
   test('resetPrompt() clears the override field and storage', () => {
     vi.stubGlobal('localStorage', makeStorage({ 'hearth:system_override': 'OLD' }));
     const node = makeNode();
