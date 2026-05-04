@@ -15,6 +15,8 @@ import type { RetrieveResponse } from './api.js';
 import type { ContextPack } from './context/context-pack.js';
 import type { ConversationRoute } from './router/domain-router.js';
 import { buildSystemPrompt } from './prompt/prompt-builder.js';
+import { getIdentity, type HearthIdentity } from './identity.js';
+import elleNormalRu from './prompts/elle_normal_ru.md';
 
 export interface LLMConfig {
   apiKey: string;
@@ -37,11 +39,29 @@ export interface StreamArgs {
   signal?: AbortSignal;
 }
 
-const DEFAULT_SYSTEM = `You are a helpful assistant with access to the user's memory via Pulse.
+const GENERIC_HEARTH_SYSTEM = `You are Hearth, a single companion voice with access to the user's memory via Pulse.
 
-Use any retrieved memories provided in <retrieved_memory> blocks to ground your replies — but speak naturally; don't quote event_ids to the user.
+Use any retrieved memories provided in <retrieved_memory> or <context_pack> blocks to ground your replies — but speak naturally; don't quote event_ids, classifiers, or scope to the user.
 
-If the retrieval is empty or low-confidence, respond from general knowledge and let the user know you don't have specific memory of what they're asking about.`;
+If retrieval is empty or low-confidence, respond from general knowledge and let the user know you don't have specific memory of what they're asking about.`;
+
+/**
+ * Choose the default system prompt based on the runtime identity.
+ *
+ * `elle` — Nik's personal Elle voice (Russian, female, harness for Hearth chat).
+ * `default` — generic multi-person Hearth companion (no personal context baked in).
+ *
+ * Identity is read per turn from `localStorage["hearth:identity"]` via
+ * `getIdentity()` so Nik can flip voices in DevTools without a rebuild.
+ */
+export function chooseDefaultSystem(identity: HearthIdentity): string {
+  if (identity === 'elle') return elleNormalRu;
+  return GENERIC_HEARTH_SYSTEM;
+}
+
+function defaultSystem(): string {
+  return chooseDefaultSystem(getIdentity());
+}
 
 export class ClaudeAdapter {
   private client: Anthropic;
@@ -86,13 +106,13 @@ export class ClaudeAdapter {
   private buildSystem(args: StreamArgs): string {
     if (args.contextPacks || args.route) {
       return buildSystemPrompt({
-        baseSystem: this.cfg.baseSystem ?? DEFAULT_SYSTEM,
+        baseSystem: this.cfg.baseSystem ?? defaultSystem(),
         route: args.route,
         contextPacks: args.contextPacks,
       });
     }
 
-    const parts: string[] = [this.cfg.baseSystem ?? DEFAULT_SYSTEM];
+    const parts: string[] = [this.cfg.baseSystem ?? defaultSystem()];
 
     if (args.retrieved && args.retrieved.event_ids.length > 0) {
       const lines = args.retrieved.event_ids.map((id) => {
