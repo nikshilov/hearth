@@ -83,6 +83,130 @@ body.debug-mode .debug-pane    { grid-area: debug; }
   pointer-events: auto;
   display: inline-block;
 }
+.hearth-corner .settings-gear {
+  pointer-events: auto;
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  background: transparent;
+  border: 1px solid color-mix(in oklab, currentColor 22%, transparent);
+  color: inherit;
+  border-radius: 999px;
+  width: 32px;
+  height: 32px;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity 0.15s ease;
+}
+.hearth-corner .settings-gear:hover { opacity: 1; }
+
+/* ── Settings panel ────────────────────────────────────────────── */
+settings-panel { display: none; }
+settings-panel[open] {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+}
+settings-panel .settings-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 6, 4, 0.55);
+  backdrop-filter: blur(4px);
+}
+settings-panel .settings-card {
+  position: relative;
+  max-width: 520px;
+  margin: 6vh auto;
+  background: var(--bg, #1a0f0c);
+  color: var(--fg, #ece6df);
+  border: 1px solid color-mix(in oklab, currentColor 18%, transparent);
+  border-radius: 14px;
+  padding: 18px 22px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 88vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+settings-panel header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: -2px 0 6px 0;
+}
+settings-panel h2 {
+  margin: 0;
+  font-size: 16px;
+  letter-spacing: 0.02em;
+  font-weight: 500;
+  opacity: 0.9;
+}
+settings-panel header button {
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.6;
+}
+settings-panel header button:hover { opacity: 1; }
+settings-panel label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  opacity: 0.85;
+}
+settings-panel label small { opacity: 0.55; font-weight: 400; }
+settings-panel input[type="text"],
+settings-panel input[type="password"],
+settings-panel textarea {
+  background: rgba(255, 255, 255, 0.04);
+  color: inherit;
+  border: 1px solid color-mix(in oklab, currentColor 14%, transparent);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font: inherit;
+  font-size: 13px;
+}
+settings-panel textarea { font-family: ui-monospace, monospace; resize: vertical; min-height: 140px; }
+settings-panel fieldset {
+  border: 1px solid color-mix(in oklab, currentColor 14%, transparent);
+  border-radius: 8px;
+  padding: 8px 12px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+settings-panel fieldset legend { font-size: 12px; opacity: 0.7; padding: 0 6px; }
+settings-panel fieldset label { flex-direction: row; align-items: center; gap: 6px; font-size: 13px; }
+settings-panel footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+settings-panel footer .spacer { flex: 1; }
+settings-panel footer button {
+  background: transparent;
+  color: inherit;
+  border: 1px solid color-mix(in oklab, currentColor 18%, transparent);
+  border-radius: 8px;
+  padding: 7px 14px;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+settings-panel footer button.primary {
+  background: color-mix(in oklab, currentColor 12%, transparent);
+  border-color: color-mix(in oklab, currentColor 28%, transparent);
+}
+settings-panel footer button:hover { background: color-mix(in oklab, currentColor 8%, transparent); }
 
 /* ── Main column ───────────────────────────────────────────────── */
 .hearth-main {

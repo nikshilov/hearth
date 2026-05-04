@@ -11,6 +11,7 @@ import { StatePanel } from './state-panel.js';
 import { RouterLog } from './router-log.js';
 import { HeartPulse } from './heart-pulse.js';
 import { ProfileSnapshot } from './profile-snapshot.js';
+import { SettingsPanel } from './settings-panel.js';
 
 export function registerComponents(): void {
   customElements.define('heart-pulse', HeartPulse);
@@ -21,8 +22,9 @@ export function registerComponents(): void {
   customElements.define('state-panel', StatePanel);
   customElements.define('router-log', RouterLog);
   customElements.define('profile-snapshot', ProfileSnapshot);
+  customElements.define('settings-panel', SettingsPanel);
 }
 
 export {
-  HeartPulse, ComposerBar, ChatThread, ChatMessage, MemoryRow, StatePanel, RouterLog, ProfileSnapshot,
+  HeartPulse, ComposerBar, ChatThread, ChatMessage, MemoryRow, StatePanel, RouterLog, ProfileSnapshot, SettingsPanel,
 };

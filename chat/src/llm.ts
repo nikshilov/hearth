@@ -145,5 +145,15 @@ export function makeAdapter(): ClaudeAdapter | null {
     localStorage.getItem('anthropic:key') ??
     (window as unknown as { ANTHROPIC_API_KEY?: string }).ANTHROPIC_API_KEY;
   if (!apiKey) return null;
-  return new ClaudeAdapter({ apiKey });
+  // Optional system prompt override from Settings panel.
+  // When unset, ClaudeAdapter falls back to chooseDefaultSystem(getIdentity()).
+  const override = (() => {
+    try {
+      const v = localStorage.getItem('hearth:system_override');
+      return v && v.trim() ? v : undefined;
+    } catch {
+      return undefined;
+    }
+  })();
+  return new ClaudeAdapter({ apiKey, baseSystem: override });
 }

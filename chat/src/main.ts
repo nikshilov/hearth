@@ -62,3 +62,20 @@ if (!llm) {
 (window as unknown as { __hearth: unknown }).__hearth = {
   pulse, llm, state, cartographer, demo: DEMO,
 };
+
+// Wire settings panel: hotkey Cmd/Ctrl+, and corner gear button.
+const settings = document.querySelector('settings-panel') as
+  | (HTMLElement & { open(): void; close(): void; toggle(): void })
+  | null;
+if (settings) {
+  document.addEventListener('keydown', (ev) => {
+    if ((ev.metaKey || ev.ctrlKey) && ev.key === ',') {
+      ev.preventDefault();
+      settings.toggle();
+    } else if (ev.key === 'Escape' && settings.hasAttribute('open')) {
+      settings.close();
+    }
+  });
+  document.querySelector('.settings-gear')?.addEventListener('click', () => settings.toggle());
+  settings.addEventListener('settings:saved', () => location.reload());
+}
