@@ -8,6 +8,10 @@ export interface PulseContextItemBase {
   source_scope?: string;
   privacy_floor?: string;
   do_not_probe?: boolean;
+  // real | fiction_content | fiction_meta | meta_authorial. Server may
+  // omit on legacy rows; treat missing as 'real'. Adapter uses this to
+  // tag book-canon if a non-real item slips through the server filter.
+  domain?: 'real' | 'fiction_content' | 'fiction_meta' | 'meta_authorial' | string;
 }
 
 export interface PulseContextFact extends PulseContextItemBase {

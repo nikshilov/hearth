@@ -16,13 +16,20 @@ export function contextResultToPacks(result: PulseContextResult): ContextPack[] 
   const privateItems = result.private ?? [];
   const uncertainty = result.uncertainty ?? [];
 
+  // Defense in depth: even if Pulse forgot to filter, do not let
+  // book-canon items render as plain "facts" / "events". Tag them so
+  // the model can never quote them as reality. `meta_authorial` is
+  // safe — it's the author's own commentary, not the in-book world.
+  const isReality = (d?: string) => d === undefined || d === '' || d === 'real' || d === 'meta_authorial';
+  const tagDomain = (d?: string) => (isReality(d) ? '' : ` [book:${d}]`);
+
   if (facts.length > 0) {
     packs.push({
       name: 'pulse_facts',
       visibility: 'visible_to_model',
       budgetTokens: 700,
       sources: ['pulse.context.facts'],
-      content: facts.map((f) => `- ${f.text}`).join('\n'),
+      content: facts.map((f) => `-${tagDomain(f.domain)} ${f.text}`).join('\n'),
     });
   }
   if (events.length > 0) {
@@ -31,7 +38,7 @@ export function contextResultToPacks(result: PulseContextResult): ContextPack[] 
       visibility: 'visible_to_model',
       budgetTokens: 700,
       sources: ['pulse.context.events'],
-      content: events.map((e) => `- ${e.title}: ${e.summary}`).join('\n'),
+      content: events.map((e) => `-${tagDomain(e.domain)} ${e.title}: ${e.summary}`).join('\n'),
     });
   }
   if (entities.length > 0) {

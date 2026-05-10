@@ -156,6 +156,13 @@ async function runNormalTurn(text: string): Promise<void> {
       privacy_floor: 'private',
       user_state: state.userState,
       domain_hints: route.domains,
+      // Hard filter: chat answers about real life MUST NOT pull from
+      // the autobiographical novel "Sonya". `meta_authorial` is OK
+      // because it's the author's own reflection on the work.
+      // fiction_content / fiction_meta are excluded — book-canon and
+      // book-process leaking into reality is the exact failure mode
+      // we shipped this for.
+      domains_allowed: ['real', 'meta_authorial'],
       include_trace: isDebugMode(),
     });
     state.appendRouterDecision(

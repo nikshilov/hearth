@@ -49,6 +49,11 @@ export interface ContextQueryRequest {
   include_trace?: boolean;
   user_state?: UserState;
   domain_hints?: string[];
+  // Hard whitelist for fact/event domains. Pulse drops items whose
+  // `domain` (real | fiction_content | fiction_meta | meta_authorial)
+  // is not in this list. Empty/undefined = no filter — use only for
+  // book-work tooling, never for the normal chat path.
+  domains_allowed?: Array<'real' | 'fiction_content' | 'fiction_meta' | 'meta_authorial'>;
 }
 
 export interface RouteDecision {
