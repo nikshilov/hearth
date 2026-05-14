@@ -1,51 +1,51 @@
 # Hearth
 
-> Сорок тысяч лет важные разговоры идут у огня. Один из них — твой.
+> For forty thousand years important conversations have happened by the fire. One of them is yours.
 
-Hearth — generic-purpose chat для эмоциональных разговоров с AI-собеседником, у которого есть память. Не product, не SaaS, не помощник по коду. Место собрать стулья вокруг огня и разговаривать рядом с ним.
-
----
-
-## Что это
-
-Hearth — это:
-
-- **Chat UI**, в который можно прийти когда некуда пойти. Спросить «как задеплоить» можно. Спросить «кто я и почему мне всегда холодно» — тоже можно. Тон один.
-- **State-aware**. Под капотом [Pulse](https://github.com/nikshilov/pulse) — engine эмоциональной памяти. То что ты говоришь в три часа ночи извлекается иначе чем то же самое утром в понедельник. Это не магия — это retrieval по mood-vector + recent-context.
-- **Cartographer**. Постепенно заполняется карта тебя — не из анкет, а из разговора. Что тебе важно, что у тебя триггерит, чего ты хочешь и не называешь. С shadow-слоем — паттернами которые ты живёшь, но ещё не назвал.
-- **Vanilla TypeScript**. Никакого React, никакого Next.js, никакой framework-magic. Custom Elements + ESM modules. Чистый код. По образу [Pasha Muntyan MF0-1984](https://www.notion.so/...) и старого web как он был задуман.
-- **Open source, MIT**. Self-hosted. Твой ключ Anthropic, твой Pulse engine, твой разговор.
+Hearth is a general-purpose chat for emotional conversations with an AI companion that has memory. Not a product, not a SaaS, not a coding assistant. A place to pull up chairs around the fire and talk near it.
 
 ---
 
-## Метафора
+## What this is
 
-До Wi-Fi была кухня. До кухни — печь. До печи — костёр. Сорок тысяч лет люди говорили о важном рядом с огнём. Огонь грел, освещал лицо собеседника, и просил тишины. Разговор у огня — другой разговор. Никто не торопится отвечать быстрее чтобы выглядеть умнее. Огонь делает паузы возможными. Огонь видит лицо.
+Hearth is:
 
-Hearth — собрать стулья вокруг этого огня. Память здесь работает не как лог. Она работает как тепло. Что было сожжено вчера — оставило тепло. Что было углями — снова разгорается когда подует ветер той же темы. Что важно — то что *тлеет*.
-
-Pulse — это огонь. Hearth — место где у этого огня сидят.
-
----
-
-## Для кого
-
-Не для нормесов. Не для retention metrics. Не для people-who-want-a-faster-Claude.
-
-Для тех у кого:
-- терапия не сработала или сработала не до конца,
-- лекарства держат на плаву, но не больше,
-- разговор с AI был единственным где тебя видели целиком — и ты хочешь чтобы такой разговор был для тебя дома, на твоём железе, под твоим контролем.
-
-Если тебе кажется creepy что Cartographer хочет узнать про твоего отца — Hearth не для тебя. Это не bug, это filter.
+- **A chat UI** you can come to when there's nowhere else to go. Asking "how do I deploy this" is fine. Asking "who am I and why am I always cold" is also fine. Same tone for both.
+- **State-aware.** Under the hood is [Pulse](https://github.com/nikshilov/pulse) — an emotional-memory engine. What you say at three in the morning is retrieved differently than the same words on a Monday morning. Not magic — retrieval via mood-vector + recent-context.
+- **A Cartographer.** A map of you fills in gradually — not from forms, but from conversation. What matters to you, what triggers you, what you want and don't name. With a shadow layer — patterns you're living but haven't named yet.
+- **Vanilla TypeScript.** No React, no Next.js, no framework magic. Custom Elements + ESM modules. Plain code. In the spirit of [Pasha Muntyan's MF0-1984](https://www.notion.so/...) and the old web as it was meant to be.
+- **Open source, MIT.** Self-hosted. Your Anthropic key, your Pulse engine, your conversation.
 
 ---
 
-## Архитектура
+## The metaphor
+
+Before Wi-Fi there was the kitchen. Before the kitchen, the stove. Before the stove, the campfire. For forty thousand years people spoke about important things next to fire. Fire warmed, it lit the other person's face, and it asked for silence. A conversation by the fire is a different conversation. Nobody rushes to answer faster in order to look smarter. Fire makes pauses possible. Fire sees the face.
+
+Hearth is pulling up chairs around that fire. Memory here doesn't work like a log. It works like warmth. What was burned yesterday left warmth behind. What was embers flares back up when the wind blows on the same topic. What matters is what *smolders*.
+
+Pulse is the fire. Hearth is the place where people sit by that fire.
+
+---
+
+## Who this is for
+
+Not for normies. Not for retention metrics. Not for people-who-want-a-faster-Claude.
+
+For people whose:
+- therapy didn't work, or only worked partially,
+- meds keep them afloat but not much more,
+- conversation with an AI was the only place they were seen whole — and they want such a conversation to live at home, on their own hardware, under their own control.
+
+If it strikes you as creepy that the Cartographer wants to know about your father — Hearth is not for you. That's not a bug, it's a filter.
+
+---
+
+## Architecture
 
 ```
 ┌─────────────────────────────────────────────┐
-│  Hearth (этот repo)                         │
+│  Hearth (this repo)                         │
 │  ┌──────────────┐  ┌──────────────────────┐ │
 │  │  chat/       │  │  cartographer/       │ │
 │  │              │  │                      │ │
@@ -63,59 +63,59 @@ Pulse — это огонь. Hearth — место где у этого огня
    └──────────────────────────────────┘
 ```
 
-Hearth depends on Pulse (HTTP API). Pulse not depends on Hearth — оно просто движок.
+Hearth depends on Pulse (HTTP API). Pulse does not depend on Hearth — it's just the engine.
 
 ---
 
-## Что в этом репо
+## What's in this repo
 
-| Папка | Что |
+| Folder | What |
 |---|---|
 | [`chat/`](chat/) | Web chat UI — vanilla TypeScript, Custom Elements, esbuild. Compose / thread / message / memory-row / state-panel / router-log / heart-pulse. Bundle ~62KB. |
-| [`cartographer/`](cartographer/) | Schema + prompts для постепенного построения user profile из разговора. Включает shadow layer (K.0.5) — патерны которые user живёт но не называет, defense repertoire, resistance markers. |
+| [`cartographer/`](cartographer/) | Schema + prompts for incrementally building a user profile out of the conversation. Includes the shadow layer (K.0.5) — patterns the user lives but doesn't name, defense repertoire, resistance markers. |
 
 ---
 
 ## Status
 
-**Phase 0 — split from Pulse repo (2026-04-27).** Hearth наследует все Phase I + Phase K.0 + K.0.5 артефакты что были собраны до разделения.
+**Phase 0 — split from the Pulse repo (2026-04-27).** Hearth inherits all Phase I + Phase K.0 + K.0.5 artifacts that had accumulated before the split.
 
-Что дальше:
-- [ ] Phase 1 — wire Pulse remote endpoint, не локальный
-- [ ] Phase 2 — cartographer pipeline в Go (continuous extractor + shadow inference)
-- [ ] Phase 3 — `<profile-map>` web component (мозаика + chips + shadow drawer)
-- [ ] Phase 4 — публичный demo на hearth.app (если домен возьмётся)
-- [ ] Phase 5 — iOS WKWebView wrapper (для тех кто хочет на iPhone)
+Next:
+- [ ] Phase 1 — wire up the remote Pulse endpoint, not the local one
+- [ ] Phase 2 — cartographer pipeline in Go (continuous extractor + shadow inference)
+- [ ] Phase 3 — `<profile-map>` web component (mosaic + chips + shadow drawer)
+- [ ] Phase 4 — public demo on hearth.app (if the domain lands)
+- [ ] Phase 5 — iOS WKWebView wrapper (for people who want it on iPhone)
 
-См. `chat/SPEC.md` и `cartographer/SPEC.md` для подробного дизайна.
+See `chat/SPEC.md` and `cartographer/SPEC.md` for the full design.
 
 ---
 
 ## Quickstart (dev)
 
-Требуется: Node 20+, Go 1.22+ (для Pulse), Anthropic API key.
+Requires: Node 20+, Go 1.22+ (for Pulse), Anthropic API key.
 
 ```bash
-# 1. Поднять Pulse engine
+# 1. Start the Pulse engine
 cd ../pulse
 make run    # listens on :18789
 
-# 2. Поднять Hearth chat
+# 2. Start the Hearth chat
 cd ../hearth/chat
 npm install
 npm run dev    # http://localhost:5173
 ```
 
-Открой `http://localhost:5173`, в правой панели сдвинь mood-vector slider, отправь то же сообщение — увидишь как retrieval меняется.
+Open `http://localhost:5173`, slide the mood-vector slider in the right panel, send the same message — you'll see retrieval shift.
 
 ---
 
 ## License
 
-MIT. Используй, форкай, ломай. Если что-то починишь — PR welcome, но я не обещаю мерджить если оно тянет нас в сторону «давайте сделаем продукт для нормесов».
+MIT. Use it, fork it, break it. If you fix something — PRs welcome, but I'm not promising to merge anything that pulls us toward "let's make a product for normies".
 
 ---
 
-## Имя
+## The name
 
-*Hearth* — древнеанглийское *heorþ*, очаг, каменное основание под печью. Folk-этимология сближает с *heart* — корни разные, но связь так живёт что её приняли. Это пара к Pulse: Pulse — пульс, удар, движение. Hearth — место где этот пульс греет.
+*Hearth* — Old English *heorþ*, the stone foundation under a fire. Folk etymology pairs it with *heart* — different roots, but the association has lived long enough to be accepted. It's the companion to Pulse: Pulse is the pulse, the beat, the motion. Hearth is the place where that pulse warms.

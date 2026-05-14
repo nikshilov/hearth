@@ -39,7 +39,7 @@ HEARTH_CLAUDE_BIN=claude
 
 ```json
 {
-  "system": "Я Элли...",
+  "system": "I am Elle...",
   "messages": [
     { "role": "user", "text": "first" },
     { "role": "assistant", "text": "ok" },
