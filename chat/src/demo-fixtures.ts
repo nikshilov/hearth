@@ -1,7 +1,7 @@
 /**
  * Demo mode fixtures — canned data for ?demo=1.
  *
- * Used by `demo-mode.ts` to drive Hearth without a real Pulse server
+ * Used by `demo-mode.ts` to drive Heart without a real Pulse server
  * and without an Anthropic API key. The point: viral GIF / public demo
  * that is reproducible, offline, and never leaks bytes anywhere.
  *
@@ -27,7 +27,7 @@ export interface DemoTurn {
 }
 
 /**
- * Tiny corpus — 12 events across the typical Hearth onboarding territory:
+ * Tiny corpus — 12 events across the typical Heart onboarding territory:
  * work-fatigue, body, relationships, evening drift. Enough to make the
  * "retrieved memory" badge land non-empty when scenarios trigger it.
  */
@@ -175,6 +175,6 @@ export const DEMO_TURNS: DemoTurn[] = [
 export const DEMO_FALLBACK: DemoTurn = {
   user: '',
   assistant:
-    'это демо — у меня под рукой только три-четыре сценария, дальше я повторяюсь.\n\nполную версию с настоящим Pulse — на github.com/nikshilov/hearth.',
+    'это демо — у меня под рукой только три-четыре сценария, дальше я повторяюсь.\n\nполную версию с настоящим Pulse — на github.com/nikshilov/heart.',
   retrievedIds: [],
 };

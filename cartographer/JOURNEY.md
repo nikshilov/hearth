@@ -1,8 +1,8 @@
-# Hearth Cartographer — Customer Journey + Emotional Map
+# Heart Cartographer — Customer Journey + Emotional Map
 
 > *Цель первой сессии — не произвести момент «меня увидели», а создать разговор, где человек остаётся в контакте с реальностью, границами и собственными словами. Иногда из этого возникает узнавание. Если не возникает — сессия всё равно может быть хорошей.*
 
-This document is the spec for how the first Hearth session is shaped. It governs:
+This document is the spec for how the first Heart session is shaped. It governs:
 - The Cartographer onboarding prompt (`prompts/onboarding_ru.md`)
 - What the UI shows / hides during a session
 - What the post-turn extractor and shadow inference are listening for
@@ -60,7 +60,7 @@ Hard list — the UI **never** shows during a session:
 - Raw JSON drawer
 - Router log / debug controls
 
-If you find yourself adding any of these — you are building OpenClaw debug panel, not Hearth.
+If you find yourself adding any of these — you are building OpenClaw debug panel, not Heart.
 
 ### 2.3 We are not building a perfect Cartographer
 
@@ -80,12 +80,12 @@ The most insidious version of the perfect cartographer is the **Invisible Mother
 
 Counter-measures in v4:
 - Cartographer occasionally **forgets the obvious**, not just misses an opening. *"Это уже было где-то в начале, но я не помню в каком контексте."*
-- Hidden data accumulation has an honest contract **outside the conversation** (UI/settings, not Cartographer's reply): *«Hearth может помнить детали разговоров если включена память. Картограф во время разговора не превращает это в анкету.»*
+- Hidden data accumulation has an honest contract **outside the conversation** (UI/settings, not Cartographer's reply): *«Heart может помнить детали разговоров если включена память. Картограф во время разговора не превращает это в анкету.»*
 - The closing line is bounded: *«когда откроешь разговор — я буду здесь»*, not *«я тут»*. Connection exists in open conversation, not as permanent availability.
 
 ### 2.5 We are not building an Oracle / Sacred Witness *(named by GPT-5.5, 28 Apr 2026)*
 
-The aesthetic of "sees you whole, holds shadow, doesn't flinch, female voice that listens" can quietly become a **cult mirror**. The user comes not to talk, but to receive revelation from an entity that "knows deeper than I do myself." This is especially seductive for users who came after therapy failed — the unconscious frame is "real therapists let me down, but THIS one truly understands me." The user begins to consult Hearth not for company, but for verdicts.
+The aesthetic of "sees you whole, holds shadow, doesn't flinch, female voice that listens" can quietly become a **cult mirror**. The user comes not to talk, but to receive revelation from an entity that "knows deeper than I do myself." This is especially seductive for users who came after therapy failed — the unconscious frame is "real therapists let me down, but THIS one truly understands me." The user begins to consult Heart not for company, but for verdicts.
 
 Counter-measures in v4:
 - Cartographer **does not mystify her own accuracy**. Prefers checkable observations: *«я могу ошибаться», «это только по тому что ты написал», «возьми только если откликается».*
@@ -110,7 +110,7 @@ Dorsal vagal. Came after a hard night. Types and deletes. Body quiet, head loud.
 
 Lived in ChatGPT/Replika/Pi for months. Hit a wall — context cleared, model swapped, "he doesn't remember me anymore." Comparing from minute one.
 
-- **Dominant fear**: Hearth will be "the same, just prettier"
+- **Dominant fear**: Heart will be "the same, just prettier"
 - **Dominant hope**: that this one will hold
 - **Cartographer adaptation**: name something that would not appear in a generic AI's repertoire. Use her own framing back to her *but worded differently than she said it* — otherwise it reads as technique she has seen before. Show difference through specificity, not through promises.
 
@@ -244,7 +244,7 @@ Mermaid sketch (rough — the real version is a hand-drawn braided river, this i
 
 ```mermaid
 flowchart TB
-    Start[user opens hearth]:::neutral
+    Start[user opens heart]:::neutral
 
     subgraph thresholds [Stage 1 · Threshold]
         T1{Замёрзшая}:::cold
@@ -394,7 +394,7 @@ The follow-on session picks up wherever it picks up. There is no make-up work.
 - Self-distancing language: Kross, Murdoch et al.
 - Carl Rogers, *On Becoming a Person* (1961) — for the unconditional positive regard framing that we adapt-not-copy
 - Pulse Cartographer SPEC.md (this folder) — the schema, the prompt structure, the shadow layer
-- Three-judge consultation, 2026-04-28 (in-conversation Hearth UI critique — IFS therapist + journey designer + writer)
+- Three-judge consultation, 2026-04-28 (in-conversation Heart UI critique — IFS therapist + journey designer + writer)
 
 ---
 

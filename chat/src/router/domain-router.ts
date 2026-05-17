@@ -56,7 +56,7 @@ const DOMAIN_RULES: Array<{ domain: Domain; reason: string; patterns: RegExp[] }
   {
     domain: 'dev',
     reason: 'matched dev keywords',
-    patterns: [/\bкод\b/i, /\brepo\b/i, /\btests?\b/i, /\bcommit\b/i, /\bbranch\b/i, /garden-heart/i, /hearth/i, /pulse/i],
+    patterns: [/\bкод\b/i, /\brepo\b/i, /\btests?\b/i, /\bcommit\b/i, /\bbranch\b/i, /garden-heart/i, /\bheart\b/i, /heart/i, /pulse/i],
   },
   {
     domain: 'external_schedule',

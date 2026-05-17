@@ -21,14 +21,14 @@ export function isDemoMode(): boolean {
 
 /**
  * Wipe persistence so the demo always starts clean, AND seal localStorage
- * so subsequent `setItem` calls for hearth-namespaced keys are no-ops.
+ * so subsequent `setItem` calls for heart-namespaced keys are no-ops.
  *
  * Called from main.ts when ?demo=1 is set, before cartographer or any
  * other module loads. Without the seal, cartographer.bumpTurn() and
  * applyExtraction() would write through and persist demo state across
  * reloads — breaking the "every reload is fresh" rule.
  */
-const SEALED_KEY_PREFIXES = ['hearth:', 'anthropic:', 'pulse:'];
+const SEALED_KEY_PREFIXES = ['heart:', 'anthropic:', 'pulse:'];
 export function purgeLocalStorageForDemo(): void {
   try {
     for (const prefix of SEALED_KEY_PREFIXES) {
@@ -36,7 +36,7 @@ export function purgeLocalStorageForDemo(): void {
         .filter((k) => k.startsWith(prefix))
         .forEach((k) => localStorage.removeItem(k));
     }
-    // Seal: silently swallow writes to hearth-owned keys.
+    // Seal: silently swallow writes to heart-owned keys.
     const realSet = Storage.prototype.setItem;
     Storage.prototype.setItem = function (key: string, value: string) {
       if (this === localStorage && SEALED_KEY_PREFIXES.some((p) => key.startsWith(p))) {
@@ -187,7 +187,7 @@ function chunkText(text: string): string[] {
  */
 export function mountDemoBadge(): void {
   document.body.classList.add('demo-mode');
-  const corner = document.querySelector('.hearth-corner');
+  const corner = document.querySelector('.heart-corner');
   if (!corner) return;
   if (corner.querySelector('.demo-badge')) return;
   const badge = document.createElement('span');

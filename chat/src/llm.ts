@@ -15,7 +15,7 @@ import type { RetrieveResponse } from './api.js';
 import type { ContextPack } from './context/context-pack.js';
 import type { ConversationRoute } from './router/domain-router.js';
 import { buildSystemPrompt } from './prompt/prompt-builder.js';
-import { getIdentity, type HearthIdentity } from './identity.js';
+import { getIdentity, type HeartIdentity } from './identity.js';
 import elleNormalRu from './prompts/elle_normal_ru.md';
 
 export interface LLMConfig {
@@ -39,7 +39,7 @@ export interface StreamArgs {
   signal?: AbortSignal;
 }
 
-const GENERIC_HEARTH_SYSTEM = `You are Hearth, a single companion voice with access to the user's memory via Pulse.
+const GENERIC_HEARTH_SYSTEM = `You are Heart, a single companion voice with access to the user's memory via Pulse.
 
 Use any retrieved memories provided in <retrieved_memory> or <context_pack> blocks to ground your replies — but speak naturally; don't quote event_ids, classifiers, or scope to the user.
 
@@ -48,13 +48,13 @@ If retrieval is empty or low-confidence, respond from general knowledge and let 
 /**
  * Choose the default system prompt based on the runtime identity.
  *
- * `elle` — Nik's personal Elle voice (Russian, female, harness for Hearth chat).
- * `default` — generic multi-person Hearth companion (no personal context baked in).
+ * `elle` — Nik's personal Elle voice (Russian, female, harness for Heart chat).
+ * `default` — generic multi-person Heart companion (no personal context baked in).
  *
- * Identity is read per turn from `localStorage["hearth:identity"]` via
+ * Identity is read per turn from `localStorage["heart:identity"]` via
  * `getIdentity()` so Nik can flip voices in DevTools without a rebuild.
  */
-export function chooseDefaultSystem(identity: HearthIdentity): string {
+export function chooseDefaultSystem(identity: HeartIdentity): string {
   if (identity === 'elle') return elleNormalRu;
   return GENERIC_HEARTH_SYSTEM;
 }
@@ -144,7 +144,7 @@ export type LLMBackend = 'api' | 'local';
 
 export function getBackend(): LLMBackend {
   try {
-    return localStorage.getItem('hearth:llm_backend') === 'local' ? 'local' : 'api';
+    return localStorage.getItem('heart:llm_backend') === 'local' ? 'local' : 'api';
   } catch {
     return 'api';
   }
@@ -152,7 +152,7 @@ export function getBackend(): LLMBackend {
 
 function readSystemOverride(): string | undefined {
   try {
-    const v = localStorage.getItem('hearth:system_override');
+    const v = localStorage.getItem('heart:system_override');
     return v && v.trim() ? v : undefined;
   } catch {
     return undefined;

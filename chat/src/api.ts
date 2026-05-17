@@ -64,14 +64,14 @@ export interface RouteDecision {
 }
 
 export interface PulseObservation {
-  source_kind: 'hearth_chat';
+  source_kind: 'heart_chat';
   source_id: string;
   scope: 'nik' | 'elle' | 'shared';
   captured_at: string;
   observed_at: string;
   version: number;
   content_text: string;
-  metadata: { client: 'hearth' };
+  metadata: { client: 'heart' };
 }
 export interface IngestObservation {
   text: string;
@@ -156,14 +156,14 @@ export function normalizeIngestObservations(observations: IngestObservation[]): 
   return observations.map((observation) => {
     const ts = observation.ts ?? new Date().toISOString();
     return {
-      source_kind: 'hearth_chat',
-      source_id: `hearth_chat:${ts}`,
+      source_kind: 'heart_chat',
+      source_id: `heart_chat:${ts}`,
       scope: observation.scope ?? 'nik',
       captured_at: ts,
       observed_at: ts,
       version: 1,
       content_text: observation.text,
-      metadata: { client: 'hearth' },
+      metadata: { client: 'heart' },
     };
   });
 }

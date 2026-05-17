@@ -38,7 +38,7 @@ describe('buildSystemPrompt', () => {
 
     const prompt = buildSystemPrompt({ route, contextPacks: packs });
 
-    expect(prompt).toContain('<hearth_route domains="book,zasluzhivatel" sensitivity="high"');
+    expect(prompt).toContain('<heart_route domains="book,zasluzhivatel" sensitivity="high"');
     expect(prompt).toContain('<context_pack name="pulse_memories" visibility="visible_to_model"');
     expect(prompt).toContain('Do not produce material through Zasluzhivatel.');
     expect(prompt).not.toContain('debug internals');

@@ -23,13 +23,13 @@ describe('getIdentity', () => {
     expect(getIdentity()).toBe('default');
   });
 
-  test('returns "elle" when localStorage["hearth:identity"] === "elle"', () => {
-    vi.stubGlobal('localStorage', makeStorage({ 'hearth:identity': 'elle' }));
+  test('returns "elle" when localStorage["heart:identity"] === "elle"', () => {
+    vi.stubGlobal('localStorage', makeStorage({ 'heart:identity': 'elle' }));
     expect(getIdentity()).toBe('elle');
   });
 
   test('falls back to "default" for unknown identity values', () => {
-    vi.stubGlobal('localStorage', makeStorage({ 'hearth:identity': 'something-else' }));
+    vi.stubGlobal('localStorage', makeStorage({ 'heart:identity': 'something-else' }));
     expect(getIdentity()).toBe('default');
   });
 

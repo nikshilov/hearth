@@ -1,6 +1,6 @@
-# Hearth Runtime Surface Audit
+# Heart Runtime Surface Audit
 
-Hearth's goal is to be one conversational layer on top of Pulse, where the user writes naturally and the system itself picks memory, profile, and safe read-only context sources. This document records what to port from OpenClawWorkspace into the garden-heart runtime, and what to keep off the default surface.
+Heart's goal is to be one conversational layer on top of Pulse, where the user writes naturally and the system itself picks memory, profile, and safe read-only context sources. This document records what to port from OpenClawWorkspace into the garden-heart runtime, and what to keep off the default surface.
 
 ## Core runtime
 
@@ -25,7 +25,7 @@ Hearth's goal is to be one conversational layer on top of Pulse, where the user 
 
 ## Dev-only tools
 
-These are useful while building Hearth but should not be part of the default companion runtime:
+These are useful while building Heart but should not be part of the default companion runtime:
 
 - Playwright — UI / debug verification only.
 - Mobile MCP — simulator / device testing only.
@@ -63,4 +63,4 @@ The OpenClawWorkspace `.mcp.json` currently contains a Pulse API key inline. gar
 
 ## Product rule
 
-The Hearth runtime is not a swarm. It should feel like one companion with better context selection, not a dispatcher announcing agents, skills, tools, or route decisions.
+The Heart runtime is not a swarm. It should feel like one companion with better context selection, not a dispatcher announcing agents, skills, tools, or route decisions.

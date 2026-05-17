@@ -1,10 +1,10 @@
-# Hearth Chat — design spec
+# Heart Chat — design spec
 
-> Originally designed as Pulse Phase I; migrated to Hearth on 2026-04-27 when Pulse was split into engine + chat-and-profile.
+> Originally designed as Pulse Phase I; migrated to Heart on 2026-04-27 when Pulse was split into engine + chat-and-profile.
 
 Single-page web chat that demonstrates state-aware memory retrieval visibly. When the user types, you can see top-3 events, the boost reasons, the mode router decision, and the live state vector. Same query under different mood/biometric → different events retrieved.
 
-Hearth depends on Pulse (HTTP API) for retrieval. Phase G (hybrid Pulse retrieval) and Phase H (Pulse-MCP) are upstream prerequisites and are already merged in `pulse:main` (PR #6).
+Heart depends on Pulse (HTTP API) for retrieval. Phase G (hybrid Pulse retrieval) and Phase H (Pulse-MCP) are upstream prerequisites and are already merged in `pulse:main` (PR #6).
 
 ---
 

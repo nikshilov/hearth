@@ -1,5 +1,5 @@
 /**
- * hearth boot. Registers custom elements, wires the orchestrator.
+ * heart boot. Registers custom elements, wires the orchestrator.
  *
  * Default view: single column, no panels, no header name, no status,
  * no map. Just chat. Debug surface (profile-snapshot, state-panel,
@@ -59,7 +59,7 @@ if (!llm) {
   );
 }
 
-(window as unknown as { __hearth: unknown }).__hearth = {
+(window as unknown as { __heart: unknown }).__heart = {
   pulse, llm, state, cartographer, demo: DEMO,
 };
 

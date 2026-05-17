@@ -1,11 +1,11 @@
 /**
  * <settings-panel> — friendly UI for the things that used to live in DevTools.
  *
- * Reads/writes the same localStorage keys the rest of Hearth already uses:
+ * Reads/writes the same localStorage keys the rest of Heart already uses:
  *   anthropic:key                       — Claude key for browser-side ClaudeAdapter
  *   pulse:config                        — { baseUrl, apiKey } for PulseClient
- *   hearth:identity                     — "elle" | "default" voice switch
- *   hearth:system_override              — optional system prompt that wins over the
+ *   heart:identity                     — "elle" | "default" voice switch
+ *   heart:system_override              — optional system prompt that wins over the
  *                                         identity-based default; empty means "use default"
  *
  * Hidden by default. Open via SettingsPanel.open() (called by main.ts on
@@ -68,21 +68,21 @@ export class SettingsPanel extends HTMLElement {
       localStorage.removeItem('pulse:config');
     }
 
-    localStorage.setItem('hearth:identity', identity);
+    localStorage.setItem('heart:identity', identity);
 
-    localStorage.setItem('hearth:llm_backend', backend);
-    if (proxyUrl) localStorage.setItem('hearth:proxy_url', proxyUrl);
-    else localStorage.removeItem('hearth:proxy_url');
+    localStorage.setItem('heart:llm_backend', backend);
+    if (proxyUrl) localStorage.setItem('heart:proxy_url', proxyUrl);
+    else localStorage.removeItem('heart:proxy_url');
 
-    if (override.trim()) localStorage.setItem('hearth:system_override', override);
-    else localStorage.removeItem('hearth:system_override');
+    if (override.trim()) localStorage.setItem('heart:system_override', override);
+    else localStorage.removeItem('heart:system_override');
 
     this.close();
     this.dispatchEvent(new CustomEvent('settings:saved', { bubbles: true }));
   }
 
   resetPrompt(): void {
-    localStorage.removeItem('hearth:system_override');
+    localStorage.removeItem('heart:system_override');
     const ta = this.querySelector<HTMLTextAreaElement>('textarea[name="system_override"]');
     if (ta) ta.value = '';
   }
@@ -110,22 +110,22 @@ export class SettingsPanel extends HTMLElement {
     set('input[name="pulse_url"]', baseUrl);
     set('input[name="pulse_key"]', apiKey);
 
-    const identity = localStorage.getItem('hearth:identity') === 'elle' ? 'elle' : 'default';
+    const identity = localStorage.getItem('heart:identity') === 'elle' ? 'elle' : 'default';
     const idRadio = this.querySelector<HTMLInputElement>(
       `input[name="identity"][value="${identity}"]`,
     );
     if (idRadio) idRadio.checked = true;
 
-    const backend = localStorage.getItem('hearth:llm_backend') === 'local' ? 'local' : 'api';
+    const backend = localStorage.getItem('heart:llm_backend') === 'local' ? 'local' : 'api';
     const beRadio = this.querySelector<HTMLInputElement>(
       `input[name="llm_backend"][value="${backend}"]`,
     );
     if (beRadio) beRadio.checked = true;
-    set('input[name="proxy_url"]', localStorage.getItem('hearth:proxy_url') ?? '');
+    set('input[name="proxy_url"]', localStorage.getItem('heart:proxy_url') ?? '');
 
     set(
       'textarea[name="system_override"]',
-      localStorage.getItem('hearth:system_override') ?? '',
+      localStorage.getItem('heart:system_override') ?? '',
     );
   }
 
@@ -141,7 +141,7 @@ export class SettingsPanel extends HTMLElement {
   private render(): void {
     this.innerHTML = `
       <div class="settings-backdrop" data-action="close"></div>
-      <div class="settings-card" role="dialog" aria-label="Hearth settings">
+      <div class="settings-card" role="dialog" aria-label="Heart settings">
         <header><h2>Settings</h2><button type="button" data-action="close" aria-label="Close">×</button></header>
         <label>Anthropic API key
           <input type="password" name="anthropic_key" autocomplete="off" placeholder="sk-ant-..." />
@@ -155,7 +155,7 @@ export class SettingsPanel extends HTMLElement {
         <fieldset>
           <legend>Identity</legend>
           <label><input type="radio" name="identity" value="elle" /> Elle (русский голос)</label>
-          <label><input type="radio" name="identity" value="default" /> Default (generic Hearth)</label>
+          <label><input type="radio" name="identity" value="default" /> Default (generic Heart)</label>
         </fieldset>
         <fieldset>
           <legend>LLM backend</legend>

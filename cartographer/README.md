@@ -1,8 +1,8 @@
-# hearth/cartographer/
+# heart/cartographer/
 
-The **Cartographer** — a continuously-updating, scientifically-grounded user-profile schema with onboarding mode, post-turn extraction, curiosity engine, shadow inference, and map visualization. Lives in [Hearth](../README.md), reads memory from [Pulse](https://github.com/nikshilov/pulse).
+The **Cartographer** — a continuously-updating, scientifically-grounded user-profile schema with onboarding mode, post-turn extraction, curiosity engine, shadow inference, and map visualization. Lives in [Heart](../README.md), reads memory from [Pulse](https://github.com/nikshilov/pulse).
 
-> Originally Phase K of the Pulse project (March-April 2026); migrated to Hearth on 2026-04-27 when Pulse was split into engine (Pulse) + chat-and-profile (Hearth).
+> Originally Phase K of the Pulse project (March-April 2026); migrated to Heart on 2026-04-27 when Pulse was split into engine (Pulse) + chat-and-profile (Heart).
 
 ## Files
 
@@ -59,4 +59,4 @@ Phase K extends the canon with four additions the original did not have:
 
 ## License
 
-Same as parent (`hearth/` repo) — MIT.
+Same as parent (`heart/` repo) — MIT.

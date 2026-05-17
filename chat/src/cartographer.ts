@@ -4,7 +4,7 @@
  * Two modes:
  *   - 'onboarding' — first session(s). System prompt is the cartographer
  *     onboarding prompt. No retrieval (Pulse is empty / not warmed yet).
- *   - 'normal' — companion mode. System prompt is the regular Hearth
+ *   - 'normal' — companion mode. System prompt is the regular Heart
  *     companion prompt; profile biases retrieval and tone.
  *
  * Profile is stored as free-form JSON in localStorage. The continuous
@@ -15,7 +15,7 @@
  * Anti-MF0 rule: this file caps at ~200 lines.
  */
 
-const STORAGE_KEY = 'hearth:cartographer:v1';
+const STORAGE_KEY = 'heart:cartographer:v1';
 const ONBOARDING_TURN_TARGET = 25; // soft target — switch to normal around here
 
 export type CartographerMode = 'onboarding' | 'normal';

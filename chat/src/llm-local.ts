@@ -1,5 +1,5 @@
 /**
- * LocalClaudeAdapter — talks to hearth/proxy/chat-proxy.mjs over HTTP, which
+ * LocalClaudeAdapter — talks to heart/proxy/chat-proxy.mjs over HTTP, which
  * spawns the local `claude` CLI under your Max subscription. No Anthropic
  * API key in the browser, no API billing.
  *
@@ -75,13 +75,13 @@ export class LocalClaudeAdapter implements LLMStreamer {
 export function makeLocalAdapter(): LocalClaudeAdapter {
   let baseUrl: string | undefined;
   try {
-    baseUrl = localStorage.getItem('hearth:proxy_url') ?? undefined;
+    baseUrl = localStorage.getItem('heart:proxy_url') ?? undefined;
   } catch {
     baseUrl = undefined;
   }
   let override: string | undefined;
   try {
-    const v = localStorage.getItem('hearth:system_override');
+    const v = localStorage.getItem('heart:system_override');
     override = v && v.trim() ? v : undefined;
   } catch {
     override = undefined;

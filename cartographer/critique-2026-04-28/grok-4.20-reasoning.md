@@ -1,7 +1,7 @@
 model: grok-4.20-0309-reasoning
 usage: {'prompt_tokens': 12037, 'completion_tokens': 2354, 'total_tokens': 15940, 'prompt_tokens_details': {'text_tokens': 12037, 'audio_tokens': 0, 'image_tokens': 0, 'cached_tokens': 64}, 'completion_tokens_details': {'reasoning_tokens': 1549, 'audio_tokens': 0, 'accepted_prediction_tokens': 0, 'rejected_prediction_tokens': 0}, 'num_sources_used': 0, 'cost_in_usd_ticks': 473768000}
 --- response ---
-**Критика Hearth: что сломается**
+**Критика Heart: что сломается**
 
 ### English meta on JOURNEY.md
 The braided-river model and the explicit naming of the three failure modes (yes-man, dashboard, perfect Cartographer) are genuinely strong. The resistance taxonomy is one of the best non-clinical translations of IFS/PACS language I’ve seen. The cumulative “being seen” mechanism is correctly positioned as the only deliverable.

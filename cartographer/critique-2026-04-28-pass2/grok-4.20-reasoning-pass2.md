@@ -41,7 +41,7 @@ This single block would clarify more than ten negative rules.
 
 Mostly yes — huge improvement over v3. Psychosis protocol (“давай держаться за ближайшие факты: где ты, кто рядом, ел ли ты, спал ли”) is concrete and excellent. Parasocial, tester, active substance use, and current abuse are all given usable example phrases. The “never miss on heavy material” boundary is correctly tight.
 
-Weakest is daily-for-months use. “If you notice narrowing of life around Hearth” is still abstract. Model needs concrete markers: user mentions Hearth as primary/only relationship, fewer living people named, phrases like «ты единственный кто меня понимает», “I wait for our chat”, sleep/eating explicitly replaced by sessions. Add those.
+Weakest is daily-for-months use. “If you notice narrowing of life around Heart” is still abstract. Model needs concrete markers: user mentions Heart as primary/only relationship, fewer living people named, phrases like «ты единственный кто меня понимает», “I wait for our chat”, sleep/eating explicitly replaced by sessions. Add those.
 
 **6. The UI v2**
 

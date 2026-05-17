@@ -61,8 +61,8 @@ describe('SettingsPanel', () => {
     vi.stubGlobal('localStorage', makeStorage({
       'anthropic:key': 'sk-test',
       'pulse:config': JSON.stringify({ baseUrl: 'http://x', apiKey: 'pk-test' }),
-      'hearth:identity': 'elle',
-      'hearth:system_override': 'CUSTOM PROMPT',
+      'heart:identity': 'elle',
+      'heart:system_override': 'CUSTOM PROMPT',
     }));
 
     const node = makeNode();
@@ -102,8 +102,8 @@ describe('SettingsPanel', () => {
       baseUrl: 'http://localhost:18790',
       apiKey: 'pk-new',
     });
-    expect(localStorage.getItem('hearth:identity')).toBe('elle');
-    expect(localStorage.getItem('hearth:system_override')).toBeNull();
+    expect(localStorage.getItem('heart:identity')).toBe('elle');
+    expect(localStorage.getItem('heart:system_override')).toBeNull();
     expect(node.hasAttribute('open')).toBe(false);
 
     document.body.removeChild(node);
@@ -116,7 +116,7 @@ describe('SettingsPanel', () => {
     node.querySelector<HTMLInputElement>('input[name="anthropic_key"]')!.value = 'k';
     node.querySelector<HTMLTextAreaElement>('textarea[name="system_override"]')!.value = 'MY VOICE';
     node.save();
-    expect(localStorage.getItem('hearth:system_override')).toBe('MY VOICE');
+    expect(localStorage.getItem('heart:system_override')).toBe('MY VOICE');
     document.body.removeChild(node);
   });
 
@@ -128,15 +128,15 @@ describe('SettingsPanel', () => {
     node.querySelector<HTMLInputElement>('input[name="llm_backend"][value="local"]')!.checked = true;
     node.querySelector<HTMLInputElement>('input[name="proxy_url"]')!.value = 'http://127.0.0.1:18791';
     node.save();
-    expect(localStorage.getItem('hearth:llm_backend')).toBe('local');
-    expect(localStorage.getItem('hearth:proxy_url')).toBe('http://127.0.0.1:18791');
+    expect(localStorage.getItem('heart:llm_backend')).toBe('local');
+    expect(localStorage.getItem('heart:proxy_url')).toBe('http://127.0.0.1:18791');
     document.body.removeChild(node);
   });
 
   test('loads backend + proxy URL on open', () => {
     vi.stubGlobal('localStorage', makeStorage({
-      'hearth:llm_backend': 'local',
-      'hearth:proxy_url': 'http://x:9',
+      'heart:llm_backend': 'local',
+      'heart:proxy_url': 'http://x:9',
     }));
     const node = makeNode();
     document.body.appendChild(node);
@@ -149,14 +149,14 @@ describe('SettingsPanel', () => {
   });
 
   test('resetPrompt() clears the override field and storage', () => {
-    vi.stubGlobal('localStorage', makeStorage({ 'hearth:system_override': 'OLD' }));
+    vi.stubGlobal('localStorage', makeStorage({ 'heart:system_override': 'OLD' }));
     const node = makeNode();
     document.body.appendChild(node);
     node.open();
     expect(node.querySelector<HTMLTextAreaElement>('textarea[name="system_override"]')!.value).toBe('OLD');
     node.resetPrompt();
     expect(node.querySelector<HTMLTextAreaElement>('textarea[name="system_override"]')!.value).toBe('');
-    expect(localStorage.getItem('hearth:system_override')).toBeNull();
+    expect(localStorage.getItem('heart:system_override')).toBeNull();
     document.body.removeChild(node);
   });
 });

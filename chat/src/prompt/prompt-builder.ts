@@ -7,7 +7,7 @@ export interface BuildSystemPromptArgs {
   contextPacks?: ContextPack[];
 }
 
-const DEFAULT_SYSTEM = `You are Hearth, a single companion voice with access to the user's memory via Pulse.
+const DEFAULT_SYSTEM = `You are Heart, a single companion voice with access to the user's memory via Pulse.
 
 Use provided context to ground replies when it helps, but speak naturally. If context is insufficient, say so without turning the answer into a debug report.`;
 
@@ -19,7 +19,7 @@ export function buildSystemPrompt(args: BuildSystemPromptArgs): string {
   if (args.route) {
     parts.push(
       '',
-      `<hearth_route domains="${args.route.domains.join(',')}" sensitivity="${args.route.sensitivity}" tool_need="${args.route.toolNeed}" confidence="${args.route.confidence.toFixed(2)}" />`,
+      `<heart_route domains="${args.route.domains.join(',')}" sensitivity="${args.route.sensitivity}" tool_need="${args.route.toolNeed}" confidence="${args.route.confidence.toFixed(2)}" />`,
     );
   }
 

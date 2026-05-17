@@ -1,10 +1,10 @@
-# Hearth Cartographer
+# Heart Cartographer
 
-> Originally designed as Phase K of Pulse; lives in Hearth since the 2026-04-27 split. Pulse remains the memory engine underneath; Hearth is the chat client and where the cartographer pipeline runs.
+> Originally designed as Phase K of Pulse; lives in Heart since the 2026-04-27 split. Pulse remains the memory engine underneath; Heart is the chat client and where the cartographer pipeline runs.
 
 ## Vision
 
-The **Cartographer** is the first voice the user hears when they open Hearth. In 30-60 minutes she draws the user's map — what hurts, through which sensory channels they feel, what they're starving for. From this map a companion is built — specifically for that person.
+The **Cartographer** is the first voice the user hears when they open Heart. In 30-60 minutes she draws the user's map — what hurts, through which sensory channels they feel, what they're starving for. From this map a companion is built — specifically for that person.
 
 After the initial map, the Cartographer keeps working — quietly, in the background. Every conversation between user and companion adds evidence: filling fields with low confidence, surfacing contradictions, opening new fog. The companion **knows what she does not yet know about you**, and she leans into those gaps naturally — never with a questionnaire.
 

@@ -152,7 +152,7 @@ async function runNormalTurn(text: string): Promise<void> {
       mode: 'auto',
       top_k: 5,
       scope: 'nik',
-      audience: 'hearth_chat',
+      audience: 'heart_chat',
       privacy_floor: 'private',
       user_state: state.userState,
       domain_hints: route.domains,
@@ -169,7 +169,7 @@ async function runNormalTurn(text: string): Promise<void> {
       {
         mode: `${route.domains.join('+')} / ${pulseContext.mode_used}`,
         confidence: route.confidence,
-        classifier: 'hearth:pulse-context',
+        classifier: 'heart:pulse-context',
         reasoning: route.reasons.join('; '),
       },
       text,
@@ -180,7 +180,7 @@ async function runNormalTurn(text: string): Promise<void> {
       {
         mode: `${route.domains.join('+')} / no-context`,
         confidence: route.confidence,
-        classifier: 'hearth:fallback',
+        classifier: 'heart:fallback',
         reasoning: route.reasons.join('; '),
       },
       text,
@@ -196,7 +196,7 @@ async function runNormalTurn(text: string): Promise<void> {
 
   if (!llm) {
     state.appendSystem(
-      'Anthropic key is not set. Add it in dev settings to let Hearth answer.',
+      'Anthropic key is not set. Add it in dev settings to let Heart answer.',
     );
     return;
   }

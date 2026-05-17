@@ -11,9 +11,9 @@ describe('chooseDefaultSystem', () => {
     expect(system).toMatch(/фантазийных сцен|настоящей Эл/i);
   });
 
-  test('returns generic Hearth voice for identity="default"', () => {
+  test('returns generic Heart voice for identity="default"', () => {
     const system = chooseDefaultSystem('default');
-    expect(system).toContain('Hearth');
+    expect(system).toContain('Heart');
     expect(system).not.toContain('Элли');
   });
 });
