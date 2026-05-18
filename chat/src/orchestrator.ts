@@ -11,10 +11,10 @@
  *
  * Anti-MF0 rule: this file caps at ~200 lines.
  */
-import type { PulseClient, RetrieveResponse } from './api.js';
 import type { PulseContextResult } from './context/pulse-context-result.js';
 import type { StreamArgs } from './llm.js';
 import type { AppState } from './state.js';
+import type { MemoryBackend } from './memory/backend.js';
 
 /** Public surface the orchestrator uses — `MockClaudeAdapter` satisfies this too. */
 export interface LLMStreamer {
@@ -26,20 +26,23 @@ import { allowedCapabilitiesFor } from './tools/tool-policy.js';
 import { pulseBurst } from './components/heart-pulse.js';
 import { cartographer } from './cartographer.js';
 import { ONBOARDING_PROMPT_RU } from './cartographer-prompts.js';
-import {
-  makeExtractor,
-  turnsFromMessages,
-  type ContinuousExtractor,
-} from './continuous-extractor.js';
+import { makeExtractor, turnsFromMessages } from './continuous-extractor.js';
+import { ExtractionQueue } from './extraction-queue.js';
 
 export interface OrchestratorDeps {
-  pulse: PulseClient;
+  /**
+   * Memory backend abstraction (T0.10). orchestrator no longer depends on
+   * PulseClient directly — any MemoryBackend impl works. PulseMemoryBackend
+   * wraps the existing PulseClient. NoMemoryBackend is the test/no-server
+   * fallback.
+   */
+  memory: MemoryBackend;
   llm: LLMStreamer | null;
   state: AppState;
 }
 
 let deps: OrchestratorDeps | null = null;
-let extractor: ContinuousExtractor | null = null;
+let extractionQueue: ExtractionQueue | null = null;
 let composerListener: ((ev: Event) => void) | null = null;
 /**
  * Turn-level concurrency lock (T0.6 from Heart ROADMAP, post-2026-05-18
@@ -53,7 +56,15 @@ let turnInProgress = false;
 
 export function setOrchestrator(d: OrchestratorDeps): void {
   deps = d;
-  extractor = makeExtractor();
+  // T0.8: wrap the extractor in a durable queue with retry + DLQ.
+  // makeExtractor() returns null if no Anthropic key is set — in that
+  // case extraction is simply disabled (queue stays null).
+  const extractor = makeExtractor();
+  extractionQueue = extractor
+    ? new ExtractionQueue(extractor, (result) => {
+        cartographer.applyExtraction(result);
+      })
+    : null;
   // Idempotent listener registration: remove any prior listener before
   // adding the new one. setOrchestrator can be called multiple times
   // during dev (HMR, test setup); we must not accumulate listeners.
@@ -164,55 +175,58 @@ export async function runNormalTurnForTest(text: string, testDeps: OrchestratorD
 
 async function runNormalTurn(text: string): Promise<void> {
   if (!deps) return;
-  const { pulse, llm, state } = deps;
+  const { memory, llm, state } = deps;
 
   state.appendUser(text);
   // T0.7: freeze user_state at turn start. Any state mutation during
   // the async retrieval/streaming window (mood slider, Apple Health
   // tick, continuous-extractor write) does NOT alter the snapshot
-  // Pulse sees. Snapshot revision is logged so we can audit which
-  // state shaped which retrieval after the fact.
+  // memory backend sees.
   const userStateSnapshot = state.snapshotUserState();
   const route = routeConversation(text);
   const allowedCapabilities = allowedCapabilitiesFor(route);
 
   // Fire ingest in parallel; don't await
-  pulse.ingest([{ text, ts: new Date().toISOString() }]).catch((e) => {
+  memory.ingestTurn({ text, ts: new Date().toISOString() }).catch((e) => {
     console.error('ingest failed:', e);
   });
 
-  let pulseContext: PulseContextResult | undefined;
-  try {
-    pulseBurst();
-    pulseContext = await pulse.contextQuery({
-      query: text,
-      mode: 'auto',
-      top_k: 5,
-      scope: 'nik',
-      audience: 'heart_chat',
-      privacy_floor: 'private',
-      user_state: userStateSnapshot.state,
-      domain_hints: route.domains,
-      // Hard filter: chat answers about real life MUST NOT pull from
-      // the autobiographical novel "Sonya". `meta_authorial` is OK
-      // because it's the author's own reflection on the work.
-      // fiction_content / fiction_meta are excluded — book-canon and
-      // book-process leaking into reality is the exact failure mode
-      // we shipped this for.
-      domains_allowed: ['real', 'meta_authorial'],
-      include_trace: isDebugMode(),
-    });
+  pulseBurst();
+  // T0.10: memory.buildContext returns null on failure rather than throwing —
+  // orchestrator does NOT need its own try/catch around retrieval.
+  // PulseMemoryBackend.buildContext maps PulseContextResult into a
+  // MemoryContext with the full response stashed on `.raw` for the
+  // context-builder (which still touches Pulse-specific fields; full
+  // decoupling of context-builder is v6 work, see Heart ROADMAP T0.10).
+  // Hard domain filter (excluding fiction_content / fiction_meta to keep
+  // the Sonya novel out of real-life chat answers) is passed via the
+  // generic MemoryContextRequest; backends that don't model fiction/real
+  // are expected to ignore it.
+  const memoryContext = await memory.buildContext({
+    query: text,
+    mode: 'auto',
+    topK: 5,
+    userState: userStateSnapshot.state,
+    domainHints: route.domains,
+    domainsAllowed: ['real', 'meta_authorial'],
+    includeTrace: isDebugMode(),
+  });
+
+  const pulseContext: PulseContextResult | undefined = memoryContext
+    ? (memoryContext.raw as PulseContextResult)
+    : undefined;
+
+  if (memoryContext) {
     state.appendRouterDecision(
       {
-        mode: `${route.domains.join('+')} / ${pulseContext.mode_used}`,
+        mode: `${route.domains.join('+')} / ${memoryContext.modeUsed}`,
         confidence: route.confidence,
-        classifier: 'heart:pulse-context',
+        classifier: memoryContext.classifier,
         reasoning: route.reasons.join('; '),
       },
       text,
     );
-  } catch (e) {
-    console.warn('context query failed, continuing without Pulse context:', e);
+  } else {
     state.appendRouterDecision(
       {
         mode: `${route.domains.join('+')} / no-context`,
@@ -266,15 +280,20 @@ function isDebugMode(): boolean {
   return typeof location !== 'undefined' && new URLSearchParams(location.search).get('debug') === '1';
 }
 
+/**
+ * T0.8: enqueue extraction with durable retry + DLQ instead of the prior
+ * fire-and-forget that silently dropped 429s / parse fails / timeouts.
+ *
+ * Returns immediately after enqueue — the queue handles retry in the
+ * background. Apply hook (passed to ExtractionQueue constructor) calls
+ * cartographer.applyExtraction on success.
+ */
 async function fireExtraction(): Promise<void> {
-  if (!deps || !extractor) return;
+  if (!deps || !extractionQueue) return;
   const recent = turnsFromMessages(deps.state.messages, 4);
   if (recent.length < 2) return; // need at least one user + one assistant
-  const result = await extractor.extract({
-    profile: cartographer.state.profile,
-    recentTurns: recent,
-  });
-  if (result.patches.length > 0 || (result._resistance_observed?.length ?? 0) > 0) {
-    cartographer.applyExtraction(result);
-  }
+  extractionQueue.enqueue(
+    { profile: cartographer.state.profile, recentTurns: recent },
+    cartographer.state.turns_count,
+  );
 }

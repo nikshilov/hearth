@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, test, vi } from 'vitest';
-import type { PulseClient } from './api.js';
 import { cartographer } from './cartographer.js';
+import type { MemoryBackend } from './memory/backend.js';
 import type { LLMStreamer } from './orchestrator.js';
 import { onComposerSendForTest, runNormalTurnForTest } from './orchestrator.js';
 import { AppState } from './state.js';
@@ -25,18 +25,44 @@ function makePulseContext(patch = {}) {
   };
 }
 
+/**
+ * Test helper: build a MemoryBackend mock. `contextResult` is the raw
+ * PulseContextResult-shaped object the backend's buildContext should
+ * return as `.raw`, or null to simulate retrieval failure.
+ */
+function makeMemoryMock(opts: {
+  ingestResult?: unknown;
+  ingestError?: Error;
+  context?: ReturnType<typeof makePulseContext> | null;
+  contextError?: Error;
+}): MemoryBackend & {
+  ingestTurn: ReturnType<typeof vi.fn>;
+  buildContext: ReturnType<typeof vi.fn>;
+} {
+  const ingestTurn = opts.ingestError
+    ? vi.fn().mockRejectedValue(opts.ingestError)
+    : vi.fn().mockResolvedValue(undefined);
+  const buildContext = opts.contextError
+    ? vi.fn().mockResolvedValue(null) // backend returns null on failure (per interface)
+    : opts.context === null
+      ? vi.fn().mockResolvedValue(null)
+      : vi.fn().mockResolvedValue({
+          modeUsed: opts.context?.mode_used ?? 'empathic',
+          classifier: 'heart:pulse-context',
+          confidence: 0.8,
+          raw: opts.context ?? makePulseContext(),
+        });
+  return { ingestTurn, buildContext };
+}
+
 describe('runNormalTurnForTest', () => {
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
-  test('falls back to a normal assistant response when Pulse context query fails', async () => {
+  test('falls back to a normal assistant response when memory context fails', async () => {
     const state = new AppState();
-    const pulse = {
-      ingest: vi.fn().mockResolvedValue({ ok: true }),
-      recall: vi.fn().mockRejectedValue(new Error('recall should not be called')),
-      contextQuery: vi.fn().mockRejectedValue(new Error('Pulse down')),
-    } as unknown as PulseClient;
+    const memory = makeMemoryMock({ context: null });
     const llm: LLMStreamer = {
       stream: vi.fn(async (args) => {
         args.onChunk('Я рядом без памяти.');
@@ -44,24 +70,22 @@ describe('runNormalTurnForTest', () => {
       }),
     };
 
-    await runNormalTurnForTest('мне холодно внутри', { pulse, llm, state });
+    await runNormalTurnForTest('мне холодно внутри', { memory, llm, state });
 
     expect(state.messages.map((m) => [m.role, m.text])).toEqual([
       ['user', 'мне холодно внутри'],
       ['assistant', 'Я рядом без памяти.'],
     ]);
     expect(state.messages.some((m) => m.text.includes('context query'))).toBe(false);
-    expect((pulse as unknown as { recall: ReturnType<typeof vi.fn> }).recall).not.toHaveBeenCalled();
     expect(llm.stream).toHaveBeenCalledOnce();
   });
 
   test('does not show ingest errors in the user-facing chat', async () => {
     const state = new AppState();
-    const pulse = {
-      ingest: vi.fn().mockRejectedValue(new Error('DB locked')),
-      recall: vi.fn().mockRejectedValue(new Error('recall should not be called')),
-      contextQuery: vi.fn().mockResolvedValue(makePulseContext()),
-    } as unknown as PulseClient;
+    const memory = makeMemoryMock({
+      ingestError: new Error('DB locked'),
+      context: makePulseContext(),
+    });
     const llm: LLMStreamer = {
       stream: vi.fn(async (args) => {
         args.onChunk('Я отвечаю без внутренней ошибки.');
@@ -69,7 +93,7 @@ describe('runNormalTurnForTest', () => {
       }),
     };
 
-    await runNormalTurnForTest('привет', { pulse, llm, state });
+    await runNormalTurnForTest('привет', { memory, llm, state });
     await Promise.resolve();
 
     expect(state.messages.map((m) => m.text).join('\n')).not.toContain('ingest error');
@@ -77,13 +101,9 @@ describe('runNormalTurnForTest', () => {
 
   test('no-key fallback does not expose route or retrieval internals', async () => {
     const state = new AppState();
-    const pulse = {
-      ingest: vi.fn().mockResolvedValue({ ok: true }),
-      recall: vi.fn().mockRejectedValue(new Error('recall should not be called')),
-      contextQuery: vi.fn().mockResolvedValue(makePulseContext()),
-    } as unknown as PulseClient;
+    const memory = makeMemoryMock({ context: makePulseContext() });
 
-    await runNormalTurnForTest('привет', { pulse, llm: null, state });
+    await runNormalTurnForTest('привет', { memory, llm: null, state });
 
     const visible = state.messages.map((m) => m.text).join('\n');
     expect(visible).not.toContain('route=');
@@ -93,15 +113,13 @@ describe('runNormalTurnForTest', () => {
   });
 
 
-  test('uses Pulse contextQuery instead of raw recall in normal mode', async () => {
+  test('uses memory.buildContext in normal mode', async () => {
     const state = new AppState();
-    const pulse = {
-      ingest: vi.fn().mockResolvedValue({ ok: true }),
-      recall: vi.fn().mockRejectedValue(new Error('recall should not be called')),
-      contextQuery: vi.fn().mockResolvedValue(makePulseContext({
+    const memory = makeMemoryMock({
+      context: makePulseContext({
         facts: [{ id: 1, text: 'context fact' }],
-      })),
-    } as unknown as PulseClient;
+      }),
+    });
     const llm: LLMStreamer = {
       stream: vi.fn(async (args) => {
         expect(args.contextPacks?.some((p: { name: string }) => p.name === 'pulse_facts')).toBe(true);
@@ -110,19 +128,14 @@ describe('runNormalTurnForTest', () => {
       }),
     };
 
-    await runNormalTurnForTest('мне холодно внутри', { pulse, llm, state });
+    await runNormalTurnForTest('мне холодно внутри', { memory, llm, state });
 
-    expect((pulse as unknown as { contextQuery: ReturnType<typeof vi.fn> }).contextQuery).toHaveBeenCalledOnce();
-    expect((pulse as unknown as { recall: ReturnType<typeof vi.fn> }).recall).not.toHaveBeenCalled();
+    expect(memory.buildContext).toHaveBeenCalledOnce();
   });
 
-  test('falls back without visible internals when contextQuery fails', async () => {
+  test('falls back without visible internals when memory.buildContext returns null', async () => {
     const state = new AppState();
-    const pulse = {
-      ingest: vi.fn().mockResolvedValue({ ok: true }),
-      recall: vi.fn(),
-      contextQuery: vi.fn().mockRejectedValue(new Error('Pulse down')),
-    } as unknown as PulseClient;
+    const memory = makeMemoryMock({ context: null });
     const llm: LLMStreamer = {
       stream: vi.fn(async (args) => {
         expect(args.contextPacks?.some((p: { name: string }) => p.name.startsWith('pulse_'))).toBe(false);
@@ -131,7 +144,7 @@ describe('runNormalTurnForTest', () => {
       }),
     };
 
-    await runNormalTurnForTest('тяжело', { pulse, llm, state });
+    await runNormalTurnForTest('тяжело', { memory, llm, state });
 
     const visible = state.messages.map((m) => m.text).join('\n');
     expect(visible).not.toContain('context query');
@@ -141,11 +154,7 @@ describe('runNormalTurnForTest', () => {
 
   test('switches from onboarding to normal silently without naming Cartographer as agent', async () => {
     const state = new AppState();
-    const pulse = {
-      ingest: vi.fn().mockResolvedValue({ ok: true }),
-      recall: vi.fn().mockRejectedValue(new Error('recall should not be called')),
-      contextQuery: vi.fn().mockResolvedValue(makePulseContext()),
-    } as unknown as PulseClient;
+    const memory = makeMemoryMock({ context: makePulseContext() });
     const llm: LLMStreamer = {
       stream: vi.fn(async (args) => {
         args.onChunk('тихий ответ');
@@ -157,7 +166,7 @@ describe('runNormalTurnForTest', () => {
     cartographer.state.turns_count = 24;
     cartographer.forceMode('onboarding');
 
-    await onComposerSendForTest('последний onboarding turn', { pulse, llm, state });
+    await onComposerSendForTest('последний onboarding turn', { memory, llm, state });
 
     expect(cartographer.state.mode).toBe('normal');
     expect(state.messages.some((m) => /картограф|обычный разговор/i.test(m.text))).toBe(false);

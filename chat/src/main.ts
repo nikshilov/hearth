@@ -29,6 +29,7 @@ if (DEMO) purgeLocalStorageForDemo();
 
 const { state } = await import('./state.js');
 const { makeClient } = await import('./api.js');
+const { PulseMemoryBackend } = await import('./memory/pulse-backend.js');
 const { makeAdapter } = await import('./llm.js');
 const { registerComponents } = await import('./components/index.js');
 const { setOrchestrator } = await import('./orchestrator.js');
@@ -48,10 +49,11 @@ if (params.get('debug') === '1') document.body.classList.add('debug-mode');
 if (DEMO && !params.has('onboarding')) cartographer.forceMode('normal');
 
 const pulse = DEMO ? new MockPulseClient() : makeClient();
+const memory = new PulseMemoryBackend(pulse);
 const llm = DEMO ? new MockClaudeAdapter() : makeAdapter();
 if (DEMO) mountDemoBadge();
 
-setOrchestrator({ pulse, llm, state });
+setOrchestrator({ memory, llm, state });
 
 if (!llm) {
   state.appendSystem(
@@ -60,7 +62,7 @@ if (!llm) {
 }
 
 (window as unknown as { __heart: unknown }).__heart = {
-  pulse, llm, state, cartographer, demo: DEMO,
+  pulse, memory, llm, state, cartographer, demo: DEMO,
 };
 
 // Wire settings panel: hotkey Cmd/Ctrl+, and corner gear button.
