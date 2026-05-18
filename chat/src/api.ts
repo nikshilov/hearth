@@ -127,28 +127,48 @@ export class PulseClient {
     });
   }
 
-  private async post<T>(path: string, body: unknown): Promise<T> {
+  private async post<T>(path: string, body: unknown, timeoutMs = 15_000): Promise<T> {
     if (typeof window !== 'undefined' && window.webkit?.messageHandlers?.pulse_http) {
       return await iosBridgePost<T>(path, body, this.cfg);
     }
     const url = `${this.cfg.baseUrl.replace(/\/$/, '')}${path}`;
-    const resp = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(this.cfg.apiKey ? { 'X-Pulse-Key': this.cfg.apiKey } : {}),
-      },
-      body: JSON.stringify(body),
-    });
-    if (!resp.ok) {
-      const text = await resp.text().catch(() => '');
-      throw new PulseHTTPError(
-        resp.status,
-        path,
-        `Pulse HTTP ${resp.status} on ${path}: ${text.slice(0, 500)}`,
-      );
+    // T0.11 (Heart ROADMAP, post-2026-05-18 code review): browser fetch
+    // has no default timeout. A Pulse server that accepts the connection
+    // and hangs would leave orchestrator waiting forever and the user
+    // staring at no typing indicator. AbortController bounds the wait.
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(this.cfg.apiKey ? { 'X-Pulse-Key': this.cfg.apiKey } : {}),
+        },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+      if (!resp.ok) {
+        const text = await resp.text().catch(() => '');
+        throw new PulseHTTPError(
+          resp.status,
+          path,
+          `Pulse HTTP ${resp.status} on ${path}: ${text.slice(0, 500)}`,
+        );
+      }
+      return (await resp.json()) as T;
+    } catch (e) {
+      if (e instanceof Error && e.name === 'AbortError') {
+        throw new PulseHTTPError(
+          0,
+          path,
+          `Pulse timeout after ${timeoutMs}ms on ${path}`,
+        );
+      }
+      throw e;
+    } finally {
+      clearTimeout(timeoutId);
     }
-    return (await resp.json()) as T;
   }
 }
 

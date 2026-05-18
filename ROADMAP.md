@@ -14,7 +14,33 @@ Until this is implemented, Heart is for the author only.
 
 ---
 
-## TIER 0 — must-fix before any non-author user touches Heart
+## TIER 0 — ENGINEERING (post-2026-05-18 code-audit) — partial: 5/8 SHIPPED
+
+Distilled from ChatGPT Pro tech-pass on 7 chat/src TS files (2026-05-18). Reviewer's per-file table flagged orchestrator.ts / cartographer.ts / llm.ts / continuous-extractor.ts as Dangerous, api.ts / state.ts as Messy-but-salvageable. These T0.6–T0.13 items are the engineering blockers reviewer named. **Status as of commit shipping this update: 5 done, 3 deferred (one to repo-wide, two to v6 scope).**
+
+| ID | What | Status | Sprint A artefact |
+|---|---|---|---|
+| **T0.6** | Turn-level concurrency lock — `composer:send` blocked while `runNormalTurn` async | ✅ **SHIPPED** | `orchestrator.ts:41-55` + `try/finally` reset |
+| **T0.7** | Frozen `userStateSnapshot` per turn — Pulse query sees state at turn start, not live | ✅ **SHIPPED** | `state.ts:39-48` (`snapshotUserState()`, `stateRevision` counter) + `orchestrator.ts:runNormalTurn` uses snapshot |
+| **T0.9** | `replace_if_higher_confidence` actually compares — sidecar `profile._confidence` map | ✅ **SHIPPED** | `cartographer.ts:applyPatch` real comparison + `getConfidence` / `setConfidence` helpers |
+| **T0.11** | Browser fetch timeout (15s default) + AbortController in api.ts | ✅ **SHIPPED** | `api.ts:post()` wraps fetch with controller + clearTimeout |
+| **T0.12** | `StreamArgs.signal` wired into Anthropic SDK call — abort actually works | ✅ **SHIPPED** | `llm.ts:stream()` passes `{ signal: args.signal }` as SDK options |
+| **T0.13** | Stream terminal-state guard — no duplicate `onError` / `onComplete` calls | ✅ **SHIPPED** | `llm.ts:stream()` `terminated` flag + `safeError` / `safeComplete` wrappers |
+| **T0.8** | Durable extraction queue with retry + dead-letter | ⏳ deferred — larger refactor (continuous-extractor.ts owns its loop; queue + storage layer needs design pass) |
+| **T0.10** | `MemoryBackend` interface — separate Pulse contract from orchestrator | ⏳ deferred — touches orchestrator.ts + api.ts + context-builder.ts together; do as part of cross-model bench T1.3 |
+
+**Verified after Sprint A engineering:**
+- All 48 existing tests pass (`npm test` clean)
+- `tsc --noEmit` clean — no type errors
+- `npm run build` clean — 250 KB bundle
+
+**Defer to repo-wide / post-personal-alpha:**
+- Server-side LLM proxy (replace `dangerouslyAllowBrowser: true` in llm.ts). Acceptable for personal alpha where Nik is the only user, key in his own localStorage, no XSS surface from foreign scripts. Re-evaluate when Heart goes beyond author.
+- Full Zod schema for Cartographer profile. MVP confidence sidecar + replace ops are honest enough now; full schema is v6 work.
+
+---
+
+## TIER 0 — PRODUCT (must-fix before any non-author user touches Heart)
 
 These are not features. They are moral baseline for a system that accumulates intimate patterns.
 

@@ -33,6 +33,29 @@ export class AppState extends EventTarget {
   userState: UserState = { mood_vector: {} };
   routerLog: Array<RouteDecision & { ts: number; query: string }> = [];
 
+  /**
+   * Monotonic counter incremented on every mutation. Components can compare
+   * a captured `stateRevision` against `state.stateRevision` to detect that
+   * state changed under them while they were doing async work (Pulse query,
+   * LLM stream). Orchestrator uses this to snapshot user_state at turn start
+   * so retrieval is grounded in the state the user saw when typing, not
+   * whatever happened to be live when Pulse responded.
+   */
+  stateRevision = 0;
+
+  /**
+   * Return a frozen deep clone of `userState` plus the revision number at
+   * the time of capture. Use this at the start of a turn; pass the cloned
+   * object into Pulse / LLM. Mutations to `userState` after snapshot do
+   * NOT affect the returned object.
+   */
+  snapshotUserState(): { state: UserState; revision: number } {
+    return {
+      state: structuredClone(this.userState),
+      revision: this.stateRevision,
+    };
+  }
+
   appendUser(text: string): Message {
     const m: Message = {
       id: cryptoId(),
@@ -41,6 +64,7 @@ export class AppState extends EventTarget {
       ts: Date.now(),
     };
     this.messages.push(m);
+    this.stateRevision += 1;
     this.dispatchEvent(new CustomEvent('messageAppended', { detail: m }));
     return m;
   }
@@ -53,6 +77,7 @@ export class AppState extends EventTarget {
       ts: Date.now(),
     };
     this.messages.push(m);
+    this.stateRevision += 1;
     this.dispatchEvent(new CustomEvent('messageAppended', { detail: m }));
     return m;
   }
@@ -66,6 +91,7 @@ export class AppState extends EventTarget {
       streaming: true,
     };
     this.messages.push(m);
+    this.stateRevision += 1;
     this.dispatchEvent(new CustomEvent('messageAppended', { detail: m }));
     return m;
   }
@@ -100,6 +126,7 @@ export class AppState extends EventTarget {
 
   setUserState(patch: Partial<UserState>): void {
     this.userState = mergeUserState(this.userState, patch);
+    this.stateRevision += 1;
     this.dispatchEvent(
       new CustomEvent('userStateChanged', { detail: this.userState }),
     );

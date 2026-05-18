@@ -76,6 +76,23 @@ export class ClaudeAdapter {
   }
 
   async stream(args: StreamArgs): Promise<void> {
+    // T0.13 (Heart ROADMAP, post-2026-05-18 code review): terminal-state
+    // guard. Anthropic SDK can fire both `error` event and reject
+    // `finalMessage()` for the same failure, which calls onError twice or
+    // onError-then-onComplete and duplicates error text. Track terminal
+    // state and refuse subsequent callbacks.
+    let terminated = false;
+    const safeError = (err: Error): void => {
+      if (terminated) return;
+      terminated = true;
+      args.onError(err);
+    };
+    const safeComplete = (): void => {
+      if (terminated) return;
+      terminated = true;
+      args.onComplete();
+    };
+
     try {
       const system = args.overrideSystem
         ? args.overrideSystem
@@ -87,19 +104,27 @@ export class ClaudeAdapter {
           content: m.text,
         }));
 
-      const stream = await this.client.messages.stream({
-        model: this.cfg.model ?? 'claude-sonnet-4-6',
-        max_tokens: this.cfg.maxTokens ?? 2048,
-        system,
-        messages: apiMessages,
-      });
+      // T0.12 (Heart ROADMAP): wire StreamArgs.signal into the SDK call.
+      // Previously the signal was declared on StreamArgs but never passed
+      // to Anthropic — abort requests from callers were silently ignored.
+      const stream = await this.client.messages.stream(
+        {
+          model: this.cfg.model ?? 'claude-sonnet-4-6',
+          max_tokens: this.cfg.maxTokens ?? 2048,
+          system,
+          messages: apiMessages,
+        },
+        args.signal ? { signal: args.signal } : undefined,
+      );
 
-      stream.on('text', (text) => args.onChunk(text));
-      stream.on('error', (err) => args.onError(err as Error));
+      stream.on('text', (text) => {
+        if (!terminated) args.onChunk(text);
+      });
+      stream.on('error', (err) => safeError(err as Error));
       await stream.finalMessage();
-      args.onComplete();
+      safeComplete();
     } catch (err) {
-      args.onError(err instanceof Error ? err : new Error(String(err)));
+      safeError(err instanceof Error ? err : new Error(String(err)));
     }
   }
 

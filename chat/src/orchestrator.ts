@@ -40,11 +40,28 @@ export interface OrchestratorDeps {
 
 let deps: OrchestratorDeps | null = null;
 let extractor: ContinuousExtractor | null = null;
+let composerListener: ((ev: Event) => void) | null = null;
+/**
+ * Turn-level concurrency lock (T0.6 from Heart ROADMAP, post-2026-05-18
+ * code review). While a turn is running (Pulse query → LLM stream),
+ * subsequent `composer:send` events are dropped with a user-visible
+ * system message rather than starting an overlapping turn. Overlapping
+ * turns corrupt state snapshots, append assistant messages out of order,
+ * and race Cartographer write-backs.
+ */
+let turnInProgress = false;
 
 export function setOrchestrator(d: OrchestratorDeps): void {
   deps = d;
   extractor = makeExtractor();
-  document.addEventListener('composer:send', onComposerSend as EventListener);
+  // Idempotent listener registration: remove any prior listener before
+  // adding the new one. setOrchestrator can be called multiple times
+  // during dev (HMR, test setup); we must not accumulate listeners.
+  if (composerListener) {
+    document.removeEventListener('composer:send', composerListener as EventListener);
+  }
+  composerListener = onComposerSend as (ev: Event) => void;
+  document.addEventListener('composer:send', composerListener as EventListener);
 }
 
 async function onComposerSend(ev: Event): Promise<void> {
@@ -53,23 +70,37 @@ async function onComposerSend(ev: Event): Promise<void> {
   const text = detail.text.trim();
   if (!text) return;
 
+  // T0.6: drop overlapping turns. Surface to user so they know the input
+  // was seen but not actioned; they can retry once the prior turn finishes.
+  if (turnInProgress) {
+    deps.state.appendSystem(
+      '[предыдущий ответ ещё идёт — дождись, потом отправь]',
+    );
+    return;
+  }
+  turnInProgress = true;
+
   cartographer.bumpTurn();
 
-  if (cartographer.state.mode === 'onboarding') {
-    await runOnboardingTurn(text);
-  } else {
-    await runNormalTurn(text);
-  }
+  try {
+    if (cartographer.state.mode === 'onboarding') {
+      await runOnboardingTurn(text);
+    } else {
+      await runNormalTurn(text);
+    }
 
-  // Soft transition: once we've collected enough, leave onboarding silently.
-  if (cartographer.shouldSwitchToNormal()) {
-    cartographer.forceMode('normal');
-  }
+    // Soft transition: once we've collected enough, leave onboarding silently.
+    if (cartographer.shouldSwitchToNormal()) {
+      cartographer.forceMode('normal');
+    }
 
-  // Post-turn extraction in background — never blocks UX.
-  fireExtraction().catch((e) =>
-    console.error('background extraction failed:', e),
-  );
+    // Post-turn extraction in background — never blocks UX.
+    fireExtraction().catch((e) =>
+      console.error('background extraction failed:', e),
+    );
+  } finally {
+    turnInProgress = false;
+  }
 }
 
 async function runOnboardingTurn(text: string): Promise<void> {
@@ -136,6 +167,12 @@ async function runNormalTurn(text: string): Promise<void> {
   const { pulse, llm, state } = deps;
 
   state.appendUser(text);
+  // T0.7: freeze user_state at turn start. Any state mutation during
+  // the async retrieval/streaming window (mood slider, Apple Health
+  // tick, continuous-extractor write) does NOT alter the snapshot
+  // Pulse sees. Snapshot revision is logged so we can audit which
+  // state shaped which retrieval after the fact.
+  const userStateSnapshot = state.snapshotUserState();
   const route = routeConversation(text);
   const allowedCapabilities = allowedCapabilitiesFor(route);
 
@@ -154,7 +191,7 @@ async function runNormalTurn(text: string): Promise<void> {
       scope: 'nik',
       audience: 'heart_chat',
       privacy_floor: 'private',
-      user_state: state.userState,
+      user_state: userStateSnapshot.state,
       domain_hints: route.domains,
       // Hard filter: chat answers about real life MUST NOT pull from
       // the autobiographical novel "Sonya". `meta_authorial` is OK

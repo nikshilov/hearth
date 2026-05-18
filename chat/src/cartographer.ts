@@ -180,11 +180,39 @@ export class Cartographer extends EventTarget {
       const existing = typeof target[lastKey] === 'string' ? (target[lastKey] as string) : '';
       target[lastKey] = existing ? `${existing}\n${String(patch.value)}` : String(patch.value);
     } else if (op === 'replace_if_higher_confidence') {
-      // MVP: just replace. Confidence comparison ships in Phase 2.
-      target[lastKey] = patch.value;
+      // T0.9 (Heart ROADMAP, post-2026-05-18 code review):
+      // honest confidence comparison via sidecar map `profile._confidence`.
+      // If patch has no confidence — fall back to replace (preserves
+      // backward compat with extractor patches that don't yet emit it).
+      // If existing has no confidence record — first write wins; subsequent
+      // patches with lower confidence are dropped with a log.
+      const existingConf = this.getConfidence(patch.path);
+      const patchConf = patch.confidence;
+      if (existingConf === undefined || patchConf === undefined || patchConf >= existingConf) {
+        target[lastKey] = patch.value;
+        if (patchConf !== undefined) {
+          this.setConfidence(patch.path, patchConf);
+        }
+      } else {
+        console.log(
+          `cartographer: skipping ${patch.path} — existing confidence ${existingConf} > patch ${patchConf}`,
+        );
+      }
     } else {
       target[lastKey] = patch.value;
     }
+  }
+
+  private getConfidence(path: string): number | undefined {
+    const conf = this.state.profile._confidence as Record<string, number> | undefined;
+    return conf?.[path];
+  }
+
+  private setConfidence(path: string, value: number): void {
+    const conf =
+      (this.state.profile._confidence as Record<string, number> | undefined) ?? {};
+    conf[path] = value;
+    this.state.profile._confidence = conf;
   }
 
   /**
